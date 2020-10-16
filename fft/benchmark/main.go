@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/jaymzee/go/fft"
+	"github.com/jaymzee/go-dsp/fft"
 )
 
 func main() {
