@@ -58,15 +58,15 @@ func fftInPlace(x []complex128, sign int) {
 	}
 }
 
-// Fft computes the Fast Fourier Transform
-func Fft(x []complex128) []complex128 {
+// FFT computes the Fast Fourier Transform
+func FFT(x []complex128) []complex128 {
 	X := shuffle(x)
 	fftInPlace(X, -1)
 	return X
 }
 
-// Ifft computes the Inverse Fast Fourier Transform
-func Ifft(X []complex128) []complex128 {
+// IFFT computes the Inverse Fast Fourier Transform
+func IFFT(X []complex128) []complex128 {
 	x := shuffle(X)
 	fftInPlace(x, 1)
 	N := float64(len(x))

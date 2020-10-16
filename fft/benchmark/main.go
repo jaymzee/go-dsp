@@ -8,7 +8,7 @@ import (
 func main() {
 	x := make([]complex128, 4096)
 	for i := 0; i < 10000; i++ {
-		fft.Fft(x)
+		fft.FFT(x)
 	}
 }
 
@@ -17,4 +17,3 @@ func printArray(name string, s []complex128) {
 		fmt.Printf("%s[%d] = %v\n", name, i, num)
 	}
 }
-
