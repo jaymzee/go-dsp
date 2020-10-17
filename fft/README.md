@@ -11,7 +11,7 @@
 * N log N time complexity
 
 Based on the Data reordering, bit reversal, and in-place algorithms section of
-[Cooley Tukey FFT algorithm](https://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm)
+[Cooley Tukey FFT algorithm](https://en.wikipedia.org/wiki/Cooley-Tukey_FFT_algorithm)
 ```
 algorithm iterative-fft is
     input: Array a of n complex values where n is a power of 2.
