@@ -81,6 +81,14 @@ func ExampleIFFT() {
 	// x[7] = (0+4.440892098500626e-16i)
 }
 
+func BenchmarkFFT(b *testing.B) {
+	x := make([]complex128, 4096)
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		FFT(x)
+	}
+}
+
 func printArray(name string, s []complex128) {
 	for i, num := range s {
 		fmt.Printf("%s[%d] = %v\n", name, i, num)
