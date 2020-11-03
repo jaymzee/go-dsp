@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 )
 
-// WriteFloat writes a float64 slice to a wav file in IEEE float64 format
+// WriteFloat64 writes a float64 slice to a wav file in IEEE float64 format
 func WriteFloat64(filename string, rate uint32, data []float64) error {
 	const bitsPerSample = 64
 	const blockAlign = 1 * bitsPerSample / 8
@@ -19,12 +19,15 @@ func WriteFloat64(filename string, rate uint32, data []float64) error {
 		Data:          make([]byte, blockAlign*len(data)),
 	}
 	buf := new(bytes.Buffer)
-	binary.Write(buf, binary.LittleEndian, data)
+	err := binary.Write(buf, binary.LittleEndian, data)
+	if err != nil {
+		return err
+	}
 	copy(w.Data, buf.Bytes())
 	return w.Write(filename)
 }
 
-// WriteFloat writes a float32 slice to a wav file in IEEE float32 format
+// WriteFloat32 writes a float32 slice to a wav file in IEEE float32 format
 func WriteFloat32(filename string, rate uint32, data []float32) error {
 	const bitsPerSample = 32
 	const blockAlign = 1 * bitsPerSample / 8
@@ -38,7 +41,10 @@ func WriteFloat32(filename string, rate uint32, data []float32) error {
 		Data:          make([]byte, blockAlign*len(data)),
 	}
 	buf := new(bytes.Buffer)
-	binary.Write(buf, binary.LittleEndian, data)
+	err := binary.Write(buf, binary.LittleEndian, data)
+	if err != nil {
+		return err
+	}
 	copy(w.Data, buf.Bytes())
 	return w.Write(filename)
 }
@@ -59,8 +65,11 @@ func WritePCM16(filename string, rate uint32, data []float64) error {
 	buf := new(bytes.Buffer)
 	for _, x := range data {
 		y := clamp(x, -1.0, 1.0)
-		var samp16 uint16 = uint16(int(32767.0*y+32768.5) - 32768)
-		binary.Write(buf, binary.LittleEndian, samp16)
+		samp16 := int16(int(32767.0*y+32768.5) - 32768)
+		err := binary.Write(buf, binary.LittleEndian, samp16)
+		if err != nil {
+			return err
+		}
 	}
 	copy(w.Data, buf.Bytes())
 	return w.Write(filename)

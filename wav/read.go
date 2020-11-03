@@ -16,20 +16,39 @@ func Read(filename string) (*Wave, error) {
 	defer file.Close()
 
 	w := new(Wave)
-	err = readRIFF(w, filename, file)
+	err = readRIFF(w, filename, file, false)
 	if err != nil {
 		return nil, err
 	}
 	return w, nil
 }
 
-func readRIFF(w *Wave, fname string, file *os.File) error {
+// ReadHeader reads only the header of a wav file into a Wave struct
+func ReadHeader(filename string) (*Wave, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	w := new(Wave)
+	err = readRIFF(w, filename, file, true)
+	if err != nil {
+		return nil, err
+	}
+	return w, nil
+}
+
+func readRIFF(w *Wave, fname string, file *os.File, header bool) error {
 	chunk := make([]byte, 4)
 	err := binary.Read(file, binary.LittleEndian, &chunk)
 	if err != nil || string(chunk) != "RIFF" {
 		return fmt.Errorf("%s: expected chunk RIFF", fname)
 	}
-	file.Seek(4, io.SeekCurrent)
+	_, err = file.Seek(4, io.SeekCurrent)
+	if err != nil {
+		return err
+	}
 	err = binary.Read(file, binary.LittleEndian, &chunk)
 	if err != nil || string(chunk) != "WAVE" {
 		return fmt.Errorf("%s: expected chunk WAVE", fname)
@@ -53,6 +72,13 @@ func readRIFF(w *Wave, fname string, file *os.File) error {
 			if err != nil {
 				return fmt.Errorf("%s: expected data size", fname)
 			}
+			if header { // only header
+				_, err := file.Seek(int64(datasize), io.SeekCurrent)
+				if err != nil {
+					return err
+				}
+				break
+			}
 			w.Data = make([]byte, datasize)
 			nbytes, err := file.Read(w.Data)
 			if err != nil {
@@ -68,7 +94,10 @@ func readRIFF(w *Wave, fname string, file *os.File) error {
 			if err != nil {
 				return fmt.Errorf("%s: expected chunk size", fname)
 			}
-			file.Seek(int64(chunksize), io.SeekCurrent)
+			_, err := file.Seek(int64(chunksize), io.SeekCurrent)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -116,7 +145,10 @@ func readRIFFfmt(w *Wave, fname string, file *os.File) error {
 		skip := fmtSize + 4 - bytecount
 		fmt.Fprintf(os.Stderr,
 			"%s: skipping extra %v bytes at end of chunk fmt\n", fname, skip)
-		file.Seek(int64(skip), io.SeekCurrent)
+		_, err := file.Seek(int64(skip), io.SeekCurrent)
+		if err != nil {
+			return err
+		}
 		bytecount += skip
 	}
 	return nil
