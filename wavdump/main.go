@@ -14,7 +14,10 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Usage: wavdump wavfile")
 		os.Exit(1)
 	}
-	var wav wave.Wave
-	wave.ReadWaveFile(args[0], &wav)
-	fmt.Printf("%#v\n", wav.RIFFTag)
+	in, err := wave.Read(args[0])
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Print(in)
 }
