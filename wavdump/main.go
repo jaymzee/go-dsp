@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/jaymzee/go-dsp/wave"
+	"github.com/jaymzee/go-dsp/wav"
 	"os"
 )
 
@@ -14,10 +14,10 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Usage: wavdump wavfile")
 		os.Exit(1)
 	}
-	in, err := wave.Read(args[0])
+	wavfile, err := wav.Read(args[0])
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	fmt.Print(in)
+	fmt.Print(wavfile)
 }

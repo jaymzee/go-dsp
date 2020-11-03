@@ -1,4 +1,4 @@
-package wave
+package wav
 
 import (
 	"encoding/binary"
@@ -8,22 +8,22 @@ import (
 )
 
 // Read reads a wav file into a Wave struct
-func Read(fname string) (*Wave, error) {
-	file, err := os.Open(fname)
+func Read(filename string) (*Wave, error) {
+	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	wav := new(Wave)
-	err = readRIFF(wav, fname, file)
+	w := new(Wave)
+	err = readRIFF(w, filename, file)
 	if err != nil {
 		return nil, err
 	}
-	return wav, nil
+	return w, nil
 }
 
-func readRIFF(wav *Wave, fname string, file *os.File) error {
+func readRIFF(w *Wave, fname string, file *os.File) error {
 	chunk := make([]byte, 4)
 	err := binary.Read(file, binary.LittleEndian, &chunk)
 	if err != nil || string(chunk) != "RIFF" {
@@ -43,7 +43,7 @@ func readRIFF(wav *Wave, fname string, file *os.File) error {
 			return fmt.Errorf("%s: expected chunk", fname)
 		}
 		if string(chunk) == "fmt " {
-			err = readRIFFfmt(wav, fname, file)
+			err = readRIFFfmt(w, fname, file)
 			if err != nil {
 				return err
 			}
@@ -53,8 +53,8 @@ func readRIFF(wav *Wave, fname string, file *os.File) error {
 			if err != nil {
 				return fmt.Errorf("%s: expected data size", fname)
 			}
-			wav.Data = make([]byte, datasize)
-			nbytes, err := file.Read(wav.Data)
+			w.Data = make([]byte, datasize)
+			nbytes, err := file.Read(w.Data)
 			if err != nil {
 				return err
 			}
@@ -74,7 +74,7 @@ func readRIFF(wav *Wave, fname string, file *os.File) error {
 	return nil
 }
 
-func readRIFFfmt(wav *Wave, fname string, file *os.File) error {
+func readRIFFfmt(w *Wave, fname string, file *os.File) error {
 	var fmtSize, bytecount uint32
 	err := binary.Read(file, binary.LittleEndian, &fmtSize)
 	if err != nil {
@@ -82,27 +82,27 @@ func readRIFFfmt(wav *Wave, fname string, file *os.File) error {
 	}
 	bytecount += 4
 	if fmtSize >= fmtSizeMin {
-		err = binary.Read(file, binary.LittleEndian, &wav.Format)
+		err = binary.Read(file, binary.LittleEndian, &w.Format)
 		if err != nil {
 			return fmt.Errorf("%s: expected fmt format", fname)
 		}
-		err = binary.Read(file, binary.LittleEndian, &wav.Channels)
+		err = binary.Read(file, binary.LittleEndian, &w.Channels)
 		if err != nil {
 			return fmt.Errorf("%s: expected fmt channels", fname)
 		}
-		err = binary.Read(file, binary.LittleEndian, &wav.SampleRate)
+		err = binary.Read(file, binary.LittleEndian, &w.SampleRate)
 		if err != nil {
 			return fmt.Errorf("%s: expected fmt samplerate", fname)
 		}
-		err = binary.Read(file, binary.LittleEndian, &wav.ByteRate)
+		err = binary.Read(file, binary.LittleEndian, &w.ByteRate)
 		if err != nil {
 			return fmt.Errorf("%s: expected fmt byterate", fname)
 		}
-		err = binary.Read(file, binary.LittleEndian, &wav.BlockAlign)
+		err = binary.Read(file, binary.LittleEndian, &w.BlockAlign)
 		if err != nil {
 			return fmt.Errorf("%s: expected fmt blockalign", fname)
 		}
-		err = binary.Read(file, binary.LittleEndian, &wav.BitsPerSample)
+		err = binary.Read(file, binary.LittleEndian, &w.BitsPerSample)
 		if err != nil {
 			return fmt.Errorf("%s: expected fmt bitspersample", fname)
 		}
