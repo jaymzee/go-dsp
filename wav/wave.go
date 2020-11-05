@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-const fmtSizeMin = 16 // minimum length of format block
+const fmtSizeMin = 16 // minimum length of fmt block
 
 // Wave contains the raw data for the wav file
 type Wave struct {
@@ -16,6 +16,7 @@ type Wave struct {
 	BlockAlign    uint16 // block align = channels * bitspersample / 8
 	BitsPerSample uint16 // 8 or 16 bits
 	Data          []byte // data
+	filename      string // filename to provide helpful error messages
 }
 
 func (w *Wave) String() string {
