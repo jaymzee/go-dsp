@@ -31,15 +31,13 @@ func main() {
 	if N := *samplesFlag; N > 0 {
 		fmt.Println("data:")
 		// convert wav file sample data to floating point
-		x, err := wavfile.ToFloat64(0)
+		x, err := wavfile.ToFloat64(N)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 		for n, xn := range x {
-			if n < N {
-				fmt.Printf("  [%d] = %f\n", n, xn)
-			}
+			fmt.Printf("  [%d] = %f\n", n, xn)
 		}
 	}
 }
