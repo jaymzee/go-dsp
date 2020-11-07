@@ -6,8 +6,8 @@ import (
 )
 
 // Write writes the Wave struct to a file
-func (wav *Wave) Write(fname string) error {
-	file, err := os.Create(fname)
+func (wf *File) Write(filename string) error {
+	file, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
@@ -17,7 +17,7 @@ func (wav *Wave) Write(fname string) error {
 	if err != nil {
 		return err
 	}
-	err = binary.Write(file, binary.LittleEndian, uint32(wav.Length()))
+	err = binary.Write(file, binary.LittleEndian, uint32(wf.Length()))
 	if err != nil {
 		return err
 	}
@@ -29,27 +29,27 @@ func (wav *Wave) Write(fname string) error {
 	if err != nil {
 		return err
 	}
-	err = binary.Write(file, binary.LittleEndian, wav.Format)
+	err = binary.Write(file, binary.LittleEndian, wf.Format)
 	if err != nil {
 		return err
 	}
-	err = binary.Write(file, binary.LittleEndian, wav.Channels)
+	err = binary.Write(file, binary.LittleEndian, wf.Channels)
 	if err != nil {
 		return err
 	}
-	err = binary.Write(file, binary.LittleEndian, wav.SampleRate)
+	err = binary.Write(file, binary.LittleEndian, wf.SampleRate)
 	if err != nil {
 		return err
 	}
-	err = binary.Write(file, binary.LittleEndian, wav.ByteRate)
+	err = binary.Write(file, binary.LittleEndian, wf.ByteRate)
 	if err != nil {
 		return err
 	}
-	err = binary.Write(file, binary.LittleEndian, wav.BlockAlign)
+	err = binary.Write(file, binary.LittleEndian, wf.BlockAlign)
 	if err != nil {
 		return err
 	}
-	err = binary.Write(file, binary.LittleEndian, wav.BitsPerSample)
+	err = binary.Write(file, binary.LittleEndian, wf.BitsPerSample)
 	if err != nil {
 		return err
 	}
@@ -57,11 +57,11 @@ func (wav *Wave) Write(fname string) error {
 	if err != nil {
 		return err
 	}
-	err = binary.Write(file, binary.LittleEndian, uint32(len(wav.Data)))
+	err = binary.Write(file, binary.LittleEndian, uint32(len(wf.Data)))
 	if err != nil {
 		return err
 	}
-	err = binary.Write(file, binary.LittleEndian, wav.Data)
+	err = binary.Write(file, binary.LittleEndian, wf.Data)
 	if err != nil {
 		return err
 	}

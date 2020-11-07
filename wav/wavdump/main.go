@@ -20,7 +20,7 @@ func main() {
 	filename := args[0]
 
 	// read wav file and print header
-	wavfile, err := wav.ReadWave(filename)
+	wavfile, err := wav.Read(filename)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -31,7 +31,7 @@ func main() {
 	if N := *samplesFlag; N > 0 {
 		fmt.Println("data:")
 		// convert wav file sample data to floating point
-		x, err := wavfile.DataFloat64()
+		x, err := wavfile.ToFloat64(0)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
