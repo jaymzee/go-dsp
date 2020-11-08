@@ -61,7 +61,7 @@ func (wf *File) readRIFF(file *os.File) error {
 				return fmt.Errorf("%s: data truncated", wf.filename)
 			}
 		} else {
-			fmt.Fprintf(os.Stderr, "%s: skipping chunk %v\n",
+			fmt.Fprintf(os.Stderr, "%s: skipping chunk %s\n",
 				wf.filename, chunk)
 			var chunksize uint32
 			err = binary.Read(file, binary.LittleEndian, &chunksize)

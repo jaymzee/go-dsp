@@ -1,5 +1,3 @@
-// Package wav is for reading from and writing to wav files
-// or WAVE file, an audio file format
 package wav
 
 import (
