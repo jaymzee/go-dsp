@@ -7,19 +7,31 @@ import (
 	"os"
 )
 
+// Waveform Audio File Format
+// RIFF('WAVE'
+//      <fmt-ck>           // Format
+//      [<fact-ck>]         // Fact chunk
+//      [<cue-ck>]          // Cue points
+//      [<playlist-ck>]     // Playlist
+//      [<assoc-data-list>] // Associated data list
+//      <wave-data> )       // Wave data
+//
+// <wave-data> → data( <bSampleData:Byte> ... )
+
 func (wf *File) readRIFF(file *os.File) error {
+	var riffsize uint32
 	chunk := make([]byte, 4)
 	err := binary.Read(file, binary.LittleEndian, &chunk)
 	if err != nil || string(chunk) != "RIFF" {
-		return fmt.Errorf("%s: expected chunk RIFF", wf.filename)
+		return fmt.Errorf("%s: expected RIFF", wf.filename)
 	}
-	_, err = file.Seek(4, io.SeekCurrent)
+	err = binary.Read(file, binary.LittleEndian, &riffsize)
 	if err != nil {
-		return err
+		return fmt.Errorf("%s: expected RIFF size", wf.filename)
 	}
 	err = binary.Read(file, binary.LittleEndian, &chunk)
 	if err != nil || string(chunk) != "WAVE" {
-		return fmt.Errorf("%s: expected chunk WAVE", wf.filename)
+		return fmt.Errorf("%s: expected WAVE", wf.filename)
 	}
 	for {
 		err = binary.Read(file, binary.LittleEndian, &chunk)
@@ -46,7 +58,7 @@ func (wf *File) readRIFF(file *os.File) error {
 				return err
 			}
 			if uint32(nbytes) != datasize {
-				return fmt.Errorf("%s: data chunk truncated", wf.filename)
+				return fmt.Errorf("%s: data truncated", wf.filename)
 			}
 		} else {
 			fmt.Fprintf(os.Stderr, "%s: skipping chunk %v\n",
@@ -99,14 +111,12 @@ func (wf *File) readRIFFfmt(file *os.File) error {
 		}
 		bytecount += fmtSizeMin
 	} else {
-		fmt.Fprintf(os.Stderr,
-			"%s: expected length of chunk fmt >= %v bytes, got %v\n",
+		fmt.Fprintf(os.Stderr, "%s: expected size of fmt >= %v bytes, got %v\n",
 			wf.filename, fmtSizeMin, fmtSize)
 	}
 	if bytecount < fmtSize+4 {
 		skip := fmtSize + 4 - bytecount
-		fmt.Fprintf(os.Stderr,
-			"%s: skipping extra %v bytes at end of chunk fmt\n",
+		fmt.Fprintf(os.Stderr, "%s: skipping extra %v bytes at end of fmt\n",
 			wf.filename, skip)
 		_, err := file.Seek(int64(skip), io.SeekCurrent)
 		if err != nil {

@@ -13,7 +13,7 @@ func getBuffer(b []byte, maxBytes int) *bytes.Buffer {
 	return bytes.NewBuffer(b)
 }
 
-// ToFloat64 returns Data as float64
+// ToFloat64 converts Data to float64
 func (wf *File) ToFloat64(maxSamples int) ([]float64, error) {
 	if wf.Channels != 1 {
 		return nil, fmt.Errorf("%s: channels must be 1 (mono)", wf.filename)
@@ -68,7 +68,7 @@ func (wf *File) ToFloat64(maxSamples int) ([]float64, error) {
 		wf.filename, wf.Format, wf.Format)
 }
 
-// ToFloat32 returns Data as float32
+// ToFloat32 converts Data to float32
 func (wf *File) ToFloat32(maxSamples int) ([]float32, error) {
 	if wf.Channels != 1 {
 		return nil, fmt.Errorf("%s: channels must be 1 (mono)", wf.filename)

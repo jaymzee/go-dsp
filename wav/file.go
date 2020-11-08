@@ -1,3 +1,5 @@
+// Package wav is for reading from and writing to wav files
+// or WAVE file, an audio file format
 package wav
 
 import (
@@ -5,7 +7,7 @@ import (
 	"strings"
 )
 
-const fmtSizeMin = 16 // minimum length of fmt block
+const fmtSizeMin = 16 // minimum length of RIFF fmt chunk
 
 // File contains the raw data for the wav file
 type File struct {
@@ -15,8 +17,8 @@ type File struct {
 	SampleRate    uint32 // sample rate (fs)
 	ByteRate      uint32 // byte rate = fs * channels * bitspersample / 8
 	BlockAlign    uint16 // block align = channels * bitspersample / 8
-	BitsPerSample uint16 // 8 or 16 bits
-	Data          []byte // data
+	BitsPerSample uint16 // 8, 16, 32 or 64 bits
+	Data          []byte // samples
 }
 
 func (wf *File) String() string {
