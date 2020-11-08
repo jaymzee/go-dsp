@@ -64,8 +64,7 @@ func (wf *File) ToFloat64(maxSamples int) ([]float64, error) {
 		return nil, fmt.Errorf(
 			"%s: PCM must be 16-bit signed", wf.filename)
 	}
-	return nil, fmt.Errorf("%s: unsupported format %d (%v)",
-		wf.filename, wf.Format, wf.Format)
+	return nil, fmt.Errorf("%s: unsupported format %s", wf.filename, wf.Format)
 }
 
 // ToFloat32 converts Data to float32
@@ -119,6 +118,59 @@ func (wf *File) ToFloat32(maxSamples int) ([]float32, error) {
 		return nil, fmt.Errorf(
 			"%s: PCM must be 16-bit signed", wf.filename)
 	}
-	return nil, fmt.Errorf("%s: unsupported format %d (%v)",
-		wf.filename, wf.Format, wf.Format)
+	return nil, fmt.Errorf("%s: unsupported format %s", wf.filename, wf.Format)
+}
+
+// ToInt16 converts Data to int16
+func (wf *File) ToInt16(maxSamples int) ([]int16, error) {
+	if wf.Channels != 1 {
+		return nil, fmt.Errorf("%s: channels must be 1 (mono)", wf.filename)
+	}
+	if wf.Format == FormatFloat {
+		if wf.BitsPerSample == 64 {
+			const stride = 8
+			buf := getBuffer(wf.Data, maxSamples*stride)
+			f64 := make([]float64, buf.Len()/stride)
+			err := binary.Read(buf, binary.LittleEndian, &f64)
+			if err != nil {
+				return nil, err
+			}
+			i16 := make([]int16, len(f64))
+			for n, x := range f64 {
+				i16[n] = int16(x * 32767.0)
+			}
+			return i16, nil
+		}
+		if wf.BitsPerSample == 32 {
+			const stride = 4
+			buf := getBuffer(wf.Data, maxSamples*stride)
+			f32 := make([]float32, buf.Len()/stride)
+			err := binary.Read(buf, binary.LittleEndian, &f32)
+			if err != nil {
+				return nil, err
+			}
+			i16 := make([]int16, len(f32))
+			for n, x := range f32 {
+				i16[n] = int16(x * 32767.0)
+			}
+			return i16, nil
+		}
+		return nil, fmt.Errorf(
+			"%s: IEEE-float must be 32 or 64 bits per sample", wf.filename)
+	}
+	if wf.Format == FormatPCM {
+		if wf.BitsPerSample == 16 {
+			const stride = 2
+			buf := getBuffer(wf.Data, maxSamples*stride)
+			samples := make([]int16, buf.Len()/stride)
+			err := binary.Read(buf, binary.LittleEndian, &samples)
+			if err != nil {
+				return nil, err
+			}
+			return samples, nil
+		}
+		return nil, fmt.Errorf(
+			"%s: PCM must be 16-bit signed", wf.filename)
+	}
+	return nil, fmt.Errorf("%s: unsupported format %s", wf.filename, wf.Format)
 }

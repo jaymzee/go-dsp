@@ -1,5 +1,7 @@
 package wav
 
+import "fmt"
+
 // Format is the wav file encoding format
 type Format uint16
 
@@ -15,16 +17,18 @@ const (
 )
 
 func (f Format) String() string {
+	var s string
 	switch f {
 	case FormatPCM:
-		return "PCM"
+		s = "PCM"
 	case FormatFloat:
-		return "IEEE float"
+		s = "IEEE float"
 	case FormatALaw:
-		return "A-law"
+		s = "A-law"
 	case FormatμLaw:
-		return "μ-law"
+		s = "μ-law"
 	default:
-		return "unknown"
+		s = "unknown"
 	}
+	return fmt.Sprintf("%d (%s)", f, s)
 }

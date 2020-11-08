@@ -3,79 +3,78 @@ package wav
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 )
 
-// WriteFloat64 writes a float64 slice to a wav file in IEEE float64 format
-func WriteFloat64(filename string, rate uint32, data []float64) error {
-	const bitsPerSample = 64
-	const blockAlign = 1 * bitsPerSample / 8
-	wf := File{
-		Format:        FormatFloat,
-		Channels:      1,
-		SampleRate:    rate,
-		ByteRate:      rate * blockAlign,
-		BlockAlign:    blockAlign,
-		BitsPerSample: bitsPerSample,
-		Data:          make([]byte, blockAlign*len(data)),
-	}
+// Write writes slice to a wav file in the specified format and sample rate
+func Write(fname string, format Format, rate uint32, slice interface{}) error {
+	var wf *File
 	buf := new(bytes.Buffer)
-	err := binary.Write(buf, binary.LittleEndian, data)
-	if err != nil {
-		return err
-	}
-	copy(wf.Data, buf.Bytes())
-	return wf.Write(filename)
-}
-
-// WriteFloat32 writes a float32 slice to a wav file in IEEE float32 format
-func WriteFloat32(filename string, rate uint32, data []float32) error {
-	const bitsPerSample = 32
-	const blockAlign = 1 * bitsPerSample / 8
-	wf := File{
-		Format:        FormatFloat,
-		Channels:      1,
-		SampleRate:    rate,
-		ByteRate:      rate * blockAlign,
-		BlockAlign:    blockAlign,
-		BitsPerSample: bitsPerSample,
-		Data:          make([]byte, blockAlign*len(data)),
-	}
-	buf := new(bytes.Buffer)
-	err := binary.Write(buf, binary.LittleEndian, data)
-	if err != nil {
-		return err
-	}
-	copy(wf.Data, buf.Bytes())
-	return wf.Write(filename)
-}
-
-// WritePCM16 writes a float64 slice to a wav file in PCM 16-bit format
-func WritePCM16(filename string, rate uint32, data []float64) error {
-	const bitsPerSample = 16
-	const blockAlign = 1 * bitsPerSample / 8
-	wf := File{
-		Format:        FormatPCM,
-		Channels:      1,
-		SampleRate:    rate,
-		ByteRate:      rate * blockAlign,
-		BlockAlign:    blockAlign,
-		BitsPerSample: bitsPerSample,
-		Data:          make([]byte, blockAlign*len(data)),
-	}
-	buf := new(bytes.Buffer)
-	for _, x := range data {
-		y := clamp(x, -1.0, 1.0)
-		samp16 := int16(int(32767.0*y+32768.5) - 32768)
-		err := binary.Write(buf, binary.LittleEndian, samp16)
-		if err != nil {
-			return err
+	switch data := slice.(type) {
+	case []float64:
+		if format == FormatFloat {
+			err := binary.Write(buf, binary.LittleEndian, data)
+			if err != nil {
+				return err
+			}
+			wf = NewFile(FormatFloat, 1, rate, 64, len(data))
+		} else if format == FormatPCM {
+			for _, x := range data {
+				y := clamp64(x, -1.0, 1.0)
+				samp16 := int16(int(32767.0*y+32768.5) - 32768)
+				err := binary.Write(buf, binary.LittleEndian, samp16)
+				if err != nil {
+					return err
+				}
+			}
+			wf = NewFile(FormatPCM, 1, rate, 16, len(data))
+		}
+	case []float32:
+		if format == FormatFloat {
+			err := binary.Write(buf, binary.LittleEndian, data)
+			if err != nil {
+				return err
+			}
+			wf = NewFile(FormatFloat, 1, rate, 32, len(data))
+		} else if format == FormatPCM {
+			for _, x := range data {
+				y := clamp32(x, -1.0, 1.0)
+				samp16 := int16(int(32767.0*y+32768.5) - 32768)
+				err := binary.Write(buf, binary.LittleEndian, samp16)
+				if err != nil {
+					return err
+				}
+			}
+			wf = NewFile(FormatPCM, 1, rate, 16, len(data))
+		}
+	case []int16:
+		if format == FormatPCM {
+			err := binary.Write(buf, binary.LittleEndian, data)
+			if err != nil {
+				return err
+			}
+			wf = NewFile(FormatPCM, 1, rate, 16, len(data))
 		}
 	}
+	if wf == nil {
+		return fmt.Errorf("Write: conversion from %T to %s is not supported",
+			slice, format)
+	}
 	copy(wf.Data, buf.Bytes())
-	return wf.Write(filename)
+	return wf.Write(fname)
 }
 
-func clamp(x float64, min float64, max float64) float64 {
+func clamp64(x float64, min float64, max float64) float64 {
+	if x < min {
+		return min
+	}
+	if x > max {
+		return max
+	}
+	return x
+}
+
+func clamp32(x float32, min float32, max float32) float32 {
 	if x < min {
 		return min
 	}
