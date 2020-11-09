@@ -9,9 +9,9 @@ import (
 
 func main() {
 	// parse program arguments
-	samplesFlag := flag.Int("n", 0, "number of samples to print")
-	pcmFlag := flag.Bool("p", false, "print samples as PCM 16")
-	shortFlag := flag.Bool("s", false, "print samples on a single line")
+	nFlag := flag.Int("n", 0, "number of samples to print")
+	oFlag := flag.Bool("o", false, "print samples on one line")
+	pFlag := flag.Bool("p", false, "print samples as PCM 16")
 	flag.Parse()
 	args := flag.Args()
 	if len(args) != 1 {
@@ -33,8 +33,8 @@ func main() {
 	fmt.Print(wf)
 
 	// print some samples
-	if *samplesFlag > 0 || *pcmFlag || *shortFlag {
-		err := dumpSamples(wf, *samplesFlag, *pcmFlag, *shortFlag)
+	if *nFlag > 0 || *pFlag || *oFlag {
+		err := dumpSamples(wf, *nFlag, *pFlag, !*oFlag)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
@@ -42,51 +42,51 @@ func main() {
 	}
 }
 
-func dumpSamples(wf *wavio.File, N int, pcm bool, short bool) error {
+func dumpSamples(wf *wavio.File, N int, pcm bool, pretty bool) error {
 	const (
 		valFmt   = "  %#v\n"
-		intFmt   = "  [%d] = %d\n"
+		pcmFmt   = "  [%d] = %d\n"
 		floatFmt = "  [%d] = %f\n"
 	)
 	fmt.Println("data:")
 	if pcm {
-		// convert wav file sample data to int16
+		// convert wav file samples to int16
 		x, err := wf.ToInt16(N)
 		if err != nil {
 			return err
 		}
-		if short {
-			fmt.Printf(valFmt, x)
-		} else {
+		if pretty {
 			for n, xn := range x {
-				fmt.Printf(intFmt, n, xn)
+				fmt.Printf(pcmFmt, n, xn)
 			}
+		} else {
+			fmt.Printf(valFmt, x)
 		}
 	} else {
-		// convert wav file sample data to floating point
 		if wf.BitsPerSample == 32 {
 			x, err := wf.ToFloat32(N)
 			if err != nil {
 				return err
 			}
-			if short {
-				fmt.Printf(valFmt, x)
-			} else {
+			if pretty {
 				for n, xn := range x {
 					fmt.Printf(floatFmt, n, xn)
 				}
+			} else {
+				fmt.Printf(valFmt, x)
 			}
-		} else { // default to 64 bit conversion
+		} else {
+			// default to converting samples to 64-bit floating point
 			x, err := wf.ToFloat64(N)
 			if err != nil {
 				return err
 			}
-			if short {
-				fmt.Printf(valFmt, x)
-			} else {
+			if pretty {
 				for n, xn := range x {
 					fmt.Printf(floatFmt, n, xn)
 				}
+			} else {
+				fmt.Printf(valFmt, x)
 			}
 		}
 	}

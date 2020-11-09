@@ -10,50 +10,48 @@ import (
 func Write(fname string, format Format, rate uint32, slice interface{}) error {
 	var wf *File
 	buf := new(bytes.Buffer)
-	switch data := slice.(type) {
+	switch x := slice.(type) {
 	case []float64:
 		if format == Float {
-			err := binary.Write(buf, binary.LittleEndian, data)
+			err := binary.Write(buf, binary.LittleEndian, x)
 			if err != nil {
 				return err
 			}
-			wf = NewFile(format, 1, rate, 64, len(data))
+			wf = NewFile(format, 1, rate, 64, len(x))
 		} else if format == PCM {
-			for _, x := range data {
-				y := clamp64(x, -1.0, 1.0)
-				samp16 := int16(int(32767.0*y+32768.5) - 32768)
-				err := binary.Write(buf, binary.LittleEndian, samp16)
+			for _, xn := range x {
+				xn16 := float64toInt16(xn)
+				err := binary.Write(buf, binary.LittleEndian, xn16)
 				if err != nil {
 					return err
 				}
 			}
-			wf = NewFile(format, 1, rate, 16, len(data))
+			wf = NewFile(format, 1, rate, 16, len(x))
 		}
 	case []float32:
 		if format == Float {
-			err := binary.Write(buf, binary.LittleEndian, data)
+			err := binary.Write(buf, binary.LittleEndian, x)
 			if err != nil {
 				return err
 			}
-			wf = NewFile(format, 1, rate, 32, len(data))
+			wf = NewFile(format, 1, rate, 32, len(x))
 		} else if format == PCM {
-			for _, x := range data {
-				y := clamp32(x, -1.0, 1.0)
-				samp16 := int16(int(32767.0*y+32768.5) - 32768)
-				err := binary.Write(buf, binary.LittleEndian, samp16)
+			for _, xn := range x {
+				xn16 := float64toInt16(float64(xn))
+				err := binary.Write(buf, binary.LittleEndian, xn16)
 				if err != nil {
 					return err
 				}
 			}
-			wf = NewFile(format, 1, rate, 16, len(data))
+			wf = NewFile(format, 1, rate, 16, len(x))
 		}
 	case []int16:
 		if format == PCM {
-			err := binary.Write(buf, binary.LittleEndian, data)
+			err := binary.Write(buf, binary.LittleEndian, x)
 			if err != nil {
 				return err
 			}
-			wf = NewFile(format, 1, rate, 16, len(data))
+			wf = NewFile(format, 1, rate, 16, len(x))
 		}
 	}
 	if wf == nil {
@@ -64,17 +62,11 @@ func Write(fname string, format Format, rate uint32, slice interface{}) error {
 	return wf.Write(fname)
 }
 
-func clamp64(x float64, min float64, max float64) float64 {
-	if x < min {
-		return min
-	}
-	if x > max {
-		return max
-	}
-	return x
+func float64toInt16(x float64) int16 {
+	return int16(int(32767*clamp(x, -1, 1)+32768.5) - 32768)
 }
 
-func clamp32(x float32, min float32, max float32) float32 {
+func clamp(x float64, min float64, max float64) float64 {
 	if x < min {
 		return min
 	}

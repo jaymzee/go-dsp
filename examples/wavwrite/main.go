@@ -7,13 +7,16 @@ import (
 )
 
 func main() {
-	freqFlag := flag.Float64("f", 1000, "frequency")
-	samplesFlag := flag.Int("n", 8, "number of samples")
-	rateFlag := flag.Uint("r", 8000, "sample rate")
+	fFlag := flag.Float64("f", 1000, "frequency of sine wave")
+	nFlag := flag.Int("n", 8, "number of samples")
+	rFlag := flag.Uint("r", 8000, "sample rate")
 	flag.Parse()
-	N := *samplesFlag
-	fs := uint32(*rateFlag)
-	ω := 2 * math.Pi * *freqFlag / float64(fs)
+	f := *fFlag
+	N := *nFlag
+	fs := uint32(*rFlag)
+
+	Ω := 2 * math.Pi * f
+	ω := Ω / float64(fs)
 	x64 := make([]float64, N)
 	x32 := make([]float32, N)
 	x16 := make([]int16, N)
