@@ -25,7 +25,7 @@ func ReadFloat64(filename string) (data []float64, rate uint32, err error) {
 		return
 	}
 	rate = wf.SampleRate
-	data, err = wf.ToFloat64(0)
+	data, err = wf.ToFloat64(0, 0)
 	return
 }
 
@@ -36,7 +36,7 @@ func ReadFloat32(filename string) (data []float32, rate uint32, err error) {
 		return
 	}
 	rate = wf.SampleRate
-	data, err = wf.ToFloat32(0)
+	data, err = wf.ToFloat32(0, 0)
 	return
 }
 
@@ -47,6 +47,6 @@ func ReadInt16(filename string) (data []int16, rate uint32, err error) {
 		return
 	}
 	rate = wf.SampleRate
-	data, err = wf.ToInt16(0)
+	data, err = wf.ToInt16(0, 0)
 	return
 }

@@ -51,7 +51,7 @@ func dumpSamples(wf *wavio.File, N int, pcm bool, pretty bool) error {
 	fmt.Println("data:")
 	if pcm {
 		// convert wav file samples to int16
-		x, err := wf.ToInt16(N)
+		x, err := wf.ToInt16(0, N)
 		if err != nil {
 			return err
 		}
@@ -64,7 +64,7 @@ func dumpSamples(wf *wavio.File, N int, pcm bool, pretty bool) error {
 		}
 	} else {
 		if wf.BitsPerSample == 32 {
-			x, err := wf.ToFloat32(N)
+			x, err := wf.ToFloat32(0, N)
 			if err != nil {
 				return err
 			}
@@ -77,7 +77,7 @@ func dumpSamples(wf *wavio.File, N int, pcm bool, pretty bool) error {
 			}
 		} else {
 			// default to converting samples to 64-bit floating point
-			x, err := wf.ToFloat64(N)
+			x, err := wf.ToFloat64(0, N)
 			if err != nil {
 				return err
 			}

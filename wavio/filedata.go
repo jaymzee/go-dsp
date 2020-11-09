@@ -6,173 +6,182 @@ import (
 	"fmt"
 )
 
-func getBuffer(b []byte, maxBytes int) *bytes.Buffer {
-	if maxBytes > 0 && maxBytes < len(b) {
-		return bytes.NewBuffer(b[0:maxBytes])
-	}
-	return bytes.NewBuffer(b)
-}
+const (
+	monoConvertError   = "convert to %s: channels must be 1 (mono)"
+	floatConvertError  = "convert to %s: IEEE float must be 32 or 64 bits"
+	pcmConvertError    = "convert to %s: PCM must be 16-bit signed"
+	formatConvertError = "convert to %s: unsupported format %s"
+)
+
+const (
+	maxInt16 = 32767
+	minInt16 = -32768
+)
 
 // ToFloat64 converts Data to float64
-func (wf *File) ToFloat64(maxSamples int) (data []float64, err error) {
-	operation := "convert to float64 " + wf.filename
+// start: start index of slice
+// stop: one more than the last index of slice
+// if start and stop are both zero, convert the entire slice
+// if start is zero and stop > total samples, convert the entire slice.
+// Otherwise slice the samples before conversion.
+func (wf *File) ToFloat64(start, stop int) (data []float64, err error) {
+	operation := "float64 " + wf.filename
 	if wf.Channels != 1 {
-		err = fmt.Errorf("%s: channels must be 1 (mono)", operation)
+		err = fmt.Errorf(monoConvertError, operation)
 		return
 	}
+	stride := int(wf.BlockAlign)
+	buf := getBufferFromSlice(wf.Data, start*stride, stop*stride)
 	if wf.Format == Float {
 		if wf.BitsPerSample == 64 {
-			const stride = 8
-			buf := getBuffer(wf.Data, maxSamples*stride)
 			data = make([]float64, buf.Len()/stride)
 			err = binary.Read(buf, binary.LittleEndian, &data)
 			return
-		}
-		if wf.BitsPerSample == 32 {
-			const stride = 4
-			buf := getBuffer(wf.Data, maxSamples*stride)
-			f32 := make([]float32, buf.Len()/stride)
-			err = binary.Read(buf, binary.LittleEndian, &f32)
+		} else if wf.BitsPerSample == 32 {
+			x := make([]float32, buf.Len()/stride)
+			err = binary.Read(buf, binary.LittleEndian, &x)
 			if err != nil {
 				return
 			}
-			data = make([]float64, len(f32))
-			for n, x := range f32 {
-				data[n] = float64(x)
+			data = make([]float64, len(x))
+			for n, xn := range x {
+				data[n] = float64(xn)
 			}
 			return
 		}
-		err = fmt.Errorf("%s: IEEE float must be 32 or 64 bits per sample",
-			operation)
+		err = fmt.Errorf(floatConvertError, operation)
 		return
-	}
-	if wf.Format == PCM {
+	} else if wf.Format == PCM {
 		if wf.BitsPerSample == 16 {
-			const stride = 2
-			buf := getBuffer(wf.Data, maxSamples*stride)
-			samples := make([]int16, buf.Len()/stride)
-			err = binary.Read(buf, binary.LittleEndian, &samples)
+			x := make([]int16, buf.Len()/stride)
+			err = binary.Read(buf, binary.LittleEndian, &x)
 			if err != nil {
 				return
 			}
-			data = make([]float64, len(samples))
-			for n, v := range samples {
-				data[n] = float64(v) / 32767.0
+			data = make([]float64, len(x))
+			for n, xn := range x {
+				data[n] = float64(xn) / maxInt16
 			}
 			return
 		}
-		err = fmt.Errorf("%s: PCM must be 16-bit signed", operation)
+		err = fmt.Errorf(pcmConvertError, operation)
 		return
 	}
-	err = fmt.Errorf("%s: unsupported format %s", operation, wf.Format)
+	err = fmt.Errorf(formatConvertError, operation, wf.Format)
 	return
 }
 
 // ToFloat32 converts Data to float32
-func (wf *File) ToFloat32(maxSamples int) (data []float32, err error) {
-	operation := "convert to float 32 " + wf.filename
+// start: start index of slice
+// stop: one more than the last index of slice
+// if start and stop are both zero, convert the entire slice
+// if start is zero and stop > total samples, convert the entire slice.
+// Otherwise slice the samples before conversion.
+func (wf *File) ToFloat32(start, stop int) (data []float32, err error) {
+	operation := "float 32 " + wf.filename
 	if wf.Channels != 1 {
-		err = fmt.Errorf("%s: channels must be 1 (mono)", operation)
+		err = fmt.Errorf(monoConvertError, operation)
 		return
 	}
+	stride := int(wf.BlockAlign)
+	buf := getBufferFromSlice(wf.Data, start*stride, stop*stride)
 	if wf.Format == Float {
 		if wf.BitsPerSample == 64 {
-			const stride = 8
-			buf := getBuffer(wf.Data, maxSamples*stride)
-			f64 := make([]float64, buf.Len()/stride)
-			err = binary.Read(buf, binary.LittleEndian, &f64)
+			x := make([]float64, buf.Len()/stride)
+			err = binary.Read(buf, binary.LittleEndian, &x)
 			if err != nil {
 				return
 			}
-			data = make([]float32, len(f64))
-			for n, x := range f64 {
-				data[n] = float32(x)
+			data = make([]float32, len(x))
+			for n, xn := range x {
+				data[n] = float32(xn)
 			}
 			return
-		}
-		if wf.BitsPerSample == 32 {
-			const stride = 4
-			buf := getBuffer(wf.Data, maxSamples*stride)
+		} else if wf.BitsPerSample == 32 {
 			data = make([]float32, buf.Len()/stride)
 			err = binary.Read(buf, binary.LittleEndian, &data)
 			return
 		}
-		err = fmt.Errorf("%s: IEEE float must be 32 or 64 bits per sample",
-			operation)
+		err = fmt.Errorf(floatConvertError, operation)
 		return
-	}
-	if wf.Format == PCM {
+	} else if wf.Format == PCM {
 		if wf.BitsPerSample == 16 {
-			const stride = 2
-			buf := getBuffer(wf.Data, maxSamples*stride)
-			i16 := make([]int16, buf.Len()/stride)
-			err = binary.Read(buf, binary.LittleEndian, &i16)
+			x := make([]int16, buf.Len()/stride)
+			err = binary.Read(buf, binary.LittleEndian, &x)
 			if err != nil {
 				return
 			}
-			data = make([]float32, len(i16))
-			for n, v := range i16 {
-				data[n] = float32(v) / 32767.0
+			data = make([]float32, len(x))
+			for n, xn := range x {
+				data[n] = float32(xn) / maxInt16
 			}
 			return
 		}
-		err = fmt.Errorf("%s: PCM must be 16-bit signed", operation)
+		err = fmt.Errorf(pcmConvertError, operation)
 		return
 	}
-	err = fmt.Errorf("%s: unsupported format %s", operation, wf.Format)
+	err = fmt.Errorf(formatConvertError, operation, wf.Format)
 	return
 }
 
 // ToInt16 converts Data to int16
-func (wf *File) ToInt16(maxSamples int) (data []int16, err error) {
-	operation := "convert to int16 " + wf.filename
+// start: start index of slice
+// stop: one more than the last index of slice
+// if start and stop are both zero, convert the entire slice
+// if start is zero and stop > total samples, convert the entire slice.
+// Otherwise slice the samples before conversion.
+func (wf *File) ToInt16(start, stop int) (data []int16, err error) {
+	operation := "int16 " + wf.filename
 	if wf.Channels != 1 {
-		return nil, fmt.Errorf("%s: channels must be 1 (mono)", operation)
+		return nil, fmt.Errorf(monoConvertError, operation)
 	}
+	stride := int(wf.BlockAlign)
+	buf := getBufferFromSlice(wf.Data, start*stride, stop*stride)
 	if wf.Format == Float {
 		if wf.BitsPerSample == 64 {
-			const stride = 8
-			buf := getBuffer(wf.Data, maxSamples*stride)
-			f64 := make([]float64, buf.Len()/stride)
-			err = binary.Read(buf, binary.LittleEndian, &f64)
+			x := make([]float64, buf.Len()/stride)
+			err = binary.Read(buf, binary.LittleEndian, &x)
 			if err != nil {
 				return
 			}
-			data = make([]int16, len(f64))
-			for n, x := range f64 {
-				data[n] = int16(x * 32767.0)
+			data = make([]int16, len(x))
+			for n, xn := range x {
+				data[n] = int16(xn * maxInt16)
 			}
 			return
 		}
 		if wf.BitsPerSample == 32 {
-			const stride = 4
-			buf := getBuffer(wf.Data, maxSamples*stride)
-			f32 := make([]float32, buf.Len()/stride)
-			err = binary.Read(buf, binary.LittleEndian, &f32)
+			x := make([]float32, buf.Len()/stride)
+			err = binary.Read(buf, binary.LittleEndian, &x)
 			if err != nil {
 				return
 			}
-			data = make([]int16, len(f32))
-			for n, x := range f32 {
-				data[n] = int16(x * 32767.0)
+			data = make([]int16, len(x))
+			for n, xn := range x {
+				data[n] = int16(xn * maxInt16)
 			}
 			return
 		}
-		err = fmt.Errorf("%s: IEEE float must be 32 or 64 bits per sample",
-			operation)
+		err = fmt.Errorf(floatConvertError, operation)
 		return
 	}
 	if wf.Format == PCM {
 		if wf.BitsPerSample == 16 {
-			const stride = 2
-			buf := getBuffer(wf.Data, maxSamples*stride)
 			data = make([]int16, buf.Len()/stride)
 			err = binary.Read(buf, binary.LittleEndian, &data)
 			return
 		}
-		err = fmt.Errorf("%s: PCM must be 16-bit signed", operation)
+		err = fmt.Errorf(pcmConvertError, operation)
 		return
 	}
-	err = fmt.Errorf("%s: unsupported format %s", operation, wf.Format)
+	err = fmt.Errorf(formatConvertError, operation, wf.Format)
 	return
+}
+
+// slice b according to the rules described above and return a Buffer
+func getBufferFromSlice(b []byte, start, stop int) *bytes.Buffer {
+	if start <= 0 && (stop == 0 || stop >= len(b)) {
+		return bytes.NewBuffer(b)
+	}
+	return bytes.NewBuffer(b[start:stop])
 }
