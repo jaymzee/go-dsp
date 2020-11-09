@@ -1,4 +1,4 @@
-package wav
+package wavio
 
 import (
 	"bytes"
@@ -12,13 +12,13 @@ func Write(fname string, format Format, rate uint32, slice interface{}) error {
 	buf := new(bytes.Buffer)
 	switch data := slice.(type) {
 	case []float64:
-		if format == FormatFloat {
+		if format == Float {
 			err := binary.Write(buf, binary.LittleEndian, data)
 			if err != nil {
 				return err
 			}
-			wf = NewFile(FormatFloat, 1, rate, 64, len(data))
-		} else if format == FormatPCM {
+			wf = NewFile(format, 1, rate, 64, len(data))
+		} else if format == PCM {
 			for _, x := range data {
 				y := clamp64(x, -1.0, 1.0)
 				samp16 := int16(int(32767.0*y+32768.5) - 32768)
@@ -27,16 +27,16 @@ func Write(fname string, format Format, rate uint32, slice interface{}) error {
 					return err
 				}
 			}
-			wf = NewFile(FormatPCM, 1, rate, 16, len(data))
+			wf = NewFile(format, 1, rate, 16, len(data))
 		}
 	case []float32:
-		if format == FormatFloat {
+		if format == Float {
 			err := binary.Write(buf, binary.LittleEndian, data)
 			if err != nil {
 				return err
 			}
-			wf = NewFile(FormatFloat, 1, rate, 32, len(data))
-		} else if format == FormatPCM {
+			wf = NewFile(format, 1, rate, 32, len(data))
+		} else if format == PCM {
 			for _, x := range data {
 				y := clamp32(x, -1.0, 1.0)
 				samp16 := int16(int(32767.0*y+32768.5) - 32768)
@@ -45,15 +45,15 @@ func Write(fname string, format Format, rate uint32, slice interface{}) error {
 					return err
 				}
 			}
-			wf = NewFile(FormatPCM, 1, rate, 16, len(data))
+			wf = NewFile(format, 1, rate, 16, len(data))
 		}
 	case []int16:
-		if format == FormatPCM {
+		if format == PCM {
 			err := binary.Write(buf, binary.LittleEndian, data)
 			if err != nil {
 				return err
 			}
-			wf = NewFile(FormatPCM, 1, rate, 16, len(data))
+			wf = NewFile(format, 1, rate, 16, len(data))
 		}
 	}
 	if wf == nil {

@@ -1,11 +1,11 @@
-package wav
+package wavio
 
 import (
 	"fmt"
 )
 
 func ExampleReadFloat32_f32() {
-	x, err := ReadFloat32("test/float32.wav")
+	x, _, err := ReadFloat32("test/float32.wav")
 	if err != nil {
 		panic(err)
 	}
@@ -39,7 +39,7 @@ func ExampleReadFloat32_f32() {
 }
 
 func ExampleReadFloat64_f32() {
-	x, err := ReadFloat64("test/float32.wav")
+	x, _, err := ReadFloat64("test/float32.wav")
 	if err != nil {
 		panic(err)
 	}
@@ -73,7 +73,7 @@ func ExampleReadFloat64_f32() {
 }
 
 func ExampleReadFloat32_f64() {
-	x, err := ReadFloat32("test/float64.wav")
+	x, _, err := ReadFloat32("test/float64.wav")
 	if err != nil {
 		panic(err)
 	}
@@ -107,7 +107,7 @@ func ExampleReadFloat32_f64() {
 }
 
 func ExampleReadFloat64_f64() {
-	x, err := ReadFloat64("test/float64.wav")
+	x, _, err := ReadFloat64("test/float64.wav")
 	if err != nil {
 		panic(err)
 	}
@@ -141,7 +141,7 @@ func ExampleReadFloat64_f64() {
 }
 
 func ExampleReadFloat32_pcm16() {
-	x, err := ReadFloat32("test/pcm16.wav")
+	x, _, err := ReadFloat32("test/pcm16.wav")
 	if err != nil {
 		panic(err)
 	}
@@ -175,7 +175,7 @@ func ExampleReadFloat32_pcm16() {
 }
 
 func ExampleReadFloat64_pcm16() {
-	x, err := ReadFloat64("test/pcm16.wav")
+	x, _, err := ReadFloat64("test/pcm16.wav")
 	if err != nil {
 		panic(err)
 	}

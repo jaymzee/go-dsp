@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/jaymzee/go-dsp/wav"
+	"github.com/jaymzee/go-dsp/wavio"
 	"math"
 )
 
@@ -25,23 +25,23 @@ func main() {
 		x16[n] = int16(32767 * xn)
 	}
 
-	err := wav.Write("float64.wav", wav.FormatFloat, fs, x64)
+	err := wavio.Write("float64.wav", wavio.Float, fs, x64)
 	if err != nil {
 		panic(err)
 	}
-	err = wav.Write("float32.wav", wav.FormatFloat, fs, x32)
+	err = wavio.Write("float32.wav", wavio.Float, fs, x32)
 	if err != nil {
 		panic(err)
 	}
-	err = wav.Write("pcm16-d.wav", wav.FormatPCM, fs, x64)
+	err = wavio.Write("pcm16-d.wav", wavio.PCM, fs, x64)
 	if err != nil {
 		panic(err)
 	}
-	err = wav.Write("pcm16-s.wav", wav.FormatPCM, fs, x32)
+	err = wavio.Write("pcm16-s.wav", wavio.PCM, fs, x32)
 	if err != nil {
 		panic(err)
 	}
-	err = wav.Write("pcm16-i.wav", wav.FormatPCM, fs, x16)
+	err = wavio.Write("pcm16-i.wav", wavio.PCM, fs, x16)
 	if err != nil {
 		panic(err)
 	}

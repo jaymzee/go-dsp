@@ -1,4 +1,4 @@
-package wav
+package wavio
 
 import (
 	"bytes"
@@ -15,11 +15,12 @@ func getBuffer(b []byte, maxBytes int) *bytes.Buffer {
 
 // ToFloat64 converts Data to float64
 func (wf *File) ToFloat64(maxSamples int) (data []float64, err error) {
+	operation := "convert to float64 " + wf.filename
 	if wf.Channels != 1 {
-		err = fmt.Errorf("%s: channels must be 1 (mono)", wf.filename)
+		err = fmt.Errorf("%s: channels must be 1 (mono)", operation)
 		return
 	}
-	if wf.Format == FormatFloat {
+	if wf.Format == Float {
 		if wf.BitsPerSample == 64 {
 			const stride = 8
 			buf := getBuffer(wf.Data, maxSamples*stride)
@@ -42,10 +43,10 @@ func (wf *File) ToFloat64(maxSamples int) (data []float64, err error) {
 			return
 		}
 		err = fmt.Errorf("%s: IEEE float must be 32 or 64 bits per sample",
-			wf.filename)
+			operation)
 		return
 	}
-	if wf.Format == FormatPCM {
+	if wf.Format == PCM {
 		if wf.BitsPerSample == 16 {
 			const stride = 2
 			buf := getBuffer(wf.Data, maxSamples*stride)
@@ -60,20 +61,21 @@ func (wf *File) ToFloat64(maxSamples int) (data []float64, err error) {
 			}
 			return
 		}
-		err = fmt.Errorf("%s: PCM must be 16-bit signed", wf.filename)
+		err = fmt.Errorf("%s: PCM must be 16-bit signed", operation)
 		return
 	}
-	err = fmt.Errorf("%s: unsupported format %s", wf.filename, wf.Format)
+	err = fmt.Errorf("%s: unsupported format %s", operation, wf.Format)
 	return
 }
 
 // ToFloat32 converts Data to float32
 func (wf *File) ToFloat32(maxSamples int) (data []float32, err error) {
+	operation := "convert to float 32 " + wf.filename
 	if wf.Channels != 1 {
-		err = fmt.Errorf("%s: channels must be 1 (mono)", wf.filename)
+		err = fmt.Errorf("%s: channels must be 1 (mono)", operation)
 		return
 	}
-	if wf.Format == FormatFloat {
+	if wf.Format == Float {
 		if wf.BitsPerSample == 64 {
 			const stride = 8
 			buf := getBuffer(wf.Data, maxSamples*stride)
@@ -96,10 +98,10 @@ func (wf *File) ToFloat32(maxSamples int) (data []float32, err error) {
 			return
 		}
 		err = fmt.Errorf("%s: IEEE float must be 32 or 64 bits per sample",
-			wf.filename)
+			operation)
 		return
 	}
-	if wf.Format == FormatPCM {
+	if wf.Format == PCM {
 		if wf.BitsPerSample == 16 {
 			const stride = 2
 			buf := getBuffer(wf.Data, maxSamples*stride)
@@ -114,19 +116,20 @@ func (wf *File) ToFloat32(maxSamples int) (data []float32, err error) {
 			}
 			return
 		}
-		err = fmt.Errorf("%s: PCM must be 16-bit signed", wf.filename)
+		err = fmt.Errorf("%s: PCM must be 16-bit signed", operation)
 		return
 	}
-	err = fmt.Errorf("%s: unsupported format %s", wf.filename, wf.Format)
+	err = fmt.Errorf("%s: unsupported format %s", operation, wf.Format)
 	return
 }
 
 // ToInt16 converts Data to int16
 func (wf *File) ToInt16(maxSamples int) (data []int16, err error) {
+	operation := "convert to int16 " + wf.filename
 	if wf.Channels != 1 {
-		return nil, fmt.Errorf("%s: channels must be 1 (mono)", wf.filename)
+		return nil, fmt.Errorf("%s: channels must be 1 (mono)", operation)
 	}
-	if wf.Format == FormatFloat {
+	if wf.Format == Float {
 		if wf.BitsPerSample == 64 {
 			const stride = 8
 			buf := getBuffer(wf.Data, maxSamples*stride)
@@ -155,11 +158,11 @@ func (wf *File) ToInt16(maxSamples int) (data []int16, err error) {
 			}
 			return
 		}
-		err = fmt.Errorf("%s: IEEE-float must be 32 or 64 bits per sample",
-			wf.filename)
+		err = fmt.Errorf("%s: IEEE float must be 32 or 64 bits per sample",
+			operation)
 		return
 	}
-	if wf.Format == FormatPCM {
+	if wf.Format == PCM {
 		if wf.BitsPerSample == 16 {
 			const stride = 2
 			buf := getBuffer(wf.Data, maxSamples*stride)
@@ -167,9 +170,9 @@ func (wf *File) ToInt16(maxSamples int) (data []int16, err error) {
 			err = binary.Read(buf, binary.LittleEndian, &data)
 			return
 		}
-		err = fmt.Errorf("%s: PCM must be 16-bit signed", wf.filename)
+		err = fmt.Errorf("%s: PCM must be 16-bit signed", operation)
 		return
 	}
-	err = fmt.Errorf("%s: unsupported format %s", wf.filename, wf.Format)
+	err = fmt.Errorf("%s: unsupported format %s", operation, wf.Format)
 	return
 }

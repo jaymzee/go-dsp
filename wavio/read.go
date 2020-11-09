@@ -1,4 +1,4 @@
-package wav
+package wavio
 
 import "os"
 
@@ -6,7 +6,7 @@ import "os"
 func ReadFile(filename string) (wf *File, err error) {
 	file, err := os.Open(filename)
 	if err != nil {
-		return nil, err
+		return
 	}
 	defer file.Close()
 
@@ -19,28 +19,34 @@ func ReadFile(filename string) (wf *File, err error) {
 }
 
 // ReadFloat64 reads a wav file and returns the samples as float64
-func ReadFloat64(filename string) ([]float64, error) {
+func ReadFloat64(filename string) (data []float64, rate uint32, err error) {
 	wf, err := ReadFile(filename)
 	if err != nil {
-		return nil, err
+		return
 	}
-	return wf.ToFloat64(0)
+	rate = wf.SampleRate
+	data, err = wf.ToFloat64(0)
+	return
 }
 
 // ReadFloat32 reads a wav file and returns the samples as float32
-func ReadFloat32(filename string) ([]float32, error) {
+func ReadFloat32(filename string) (data []float32, rate uint32, err error) {
 	wf, err := ReadFile(filename)
 	if err != nil {
-		return nil, err
+		return
 	}
-	return wf.ToFloat32(0)
+	rate = wf.SampleRate
+	data, err = wf.ToFloat32(0)
+	return
 }
 
 // ReadInt16 reads a wav file and returns the samples as int16
-func ReadInt16(filename string) ([]int16, error) {
+func ReadInt16(filename string) (data []int16, rate uint32, err error) {
 	wf, err := ReadFile(filename)
 	if err != nil {
-		return nil, err
+		return
 	}
-	return wf.ToInt16(0)
+	rate = wf.SampleRate
+	data, err = wf.ToInt16(0)
+	return
 }

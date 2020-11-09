@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/jaymzee/go-dsp/wav"
+	"github.com/jaymzee/go-dsp/wavio"
 	"os"
 )
 
@@ -23,7 +23,7 @@ func main() {
 	filename := args[0]
 
 	// read wav file
-	wf, err := wav.ReadFile(filename)
+	wf, err := wavio.ReadFile(filename)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -42,7 +42,7 @@ func main() {
 	}
 }
 
-func dumpSamples(wf *wav.File, N int, pcm bool, short bool) error {
+func dumpSamples(wf *wavio.File, N int, pcm bool, short bool) error {
 	const (
 		valFmt   = "  %#v\n"
 		intFmt   = "  [%d] = %d\n"
