@@ -26,32 +26,32 @@ package filter
 *                                                                       *
 *************************************************************************/
 
-// DirectForm1 filters x using the direct form I realization
+// DirectForm1 filters xs using the direct form I realization
 // b is the numerator quadratic polynomial
 // a is the denominator quadratic polynomial
-// x is the input samples
-func DirectForm1(b, a, x []float64) []float64 {
-	u := make([]float64, len(b))
-	v := make([]float64, len(a))
-	y := make([]float64, len(x))
-	for n, xn := range x {
-		u[0] = xn
-		v0 := 0.0
+// xs input sample slice
+func DirectForm1(b, a, xs []float64) []float64 {
+	x := make([]float64, len(b))
+	y := make([]float64, len(a))
+	ys := make([]float64, len(xs))
+	for n, x0 := range xs {
+		x[0] = x0
+		y0 := 0.0
 		for i := len(b) - 1; i >= 0; i-- {
-			v0 += b[i] * u[i]
+			y0 += b[i] * u[i]
 		}
 		for i := len(a) - 1; i > 0; i-- {
-			v0 -= a[i] * v[i]
+			y0 -= a[i] * v[i]
 		}
-		v[0] = v0
+		y[0] = y0
 
 		for i := len(u) - 1; i > 0; i-- {
-			u[i] = u[i-1]
+			x[i] = x[i-1]
 		}
 		for i := len(v) - 1; i > 0; i-- {
-			v[i] = v[i-1]
+			y[i] = y[i-1]
 		}
-		y[n] = v0
+		ys[n] = y0
 	}
-	return y
+	return ys
 }
