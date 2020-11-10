@@ -9,32 +9,34 @@ import (
 
 func main() {
 	// parse program arguments
+	flag.Usage = func () {
+		fmt.Fprintf(os.Stderr, "Usage: %s [options] wavfile\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "options:\n")
+		flag.PrintDefaults()
+	}
+	fFlag := flag.Bool("f", false, "print samples as floating point")
+	oFlag := flag.Bool("l", false, "print samples on a line (no pretty print)")
 	nFlag := flag.Int("n", 0, "number of samples to print")
-	oFlag := flag.Bool("o", false, "print samples on one line")
-	pFlag := flag.Bool("p", false, "print samples as PCM 16")
 	flag.Parse()
 	args := flag.Args()
 	if len(args) != 1 {
-		fmt.Fprintf(os.Stderr, "Usage: %s [options] file\n", os.Args[0])
-		fmt.Fprintf(os.Stderr, "options:\n")
-		flag.PrintDefaults()
+		flag.Usage()
 		os.Exit(1)
 	}
-	filename := args[0]
 
 	// read wav file
-	wf, err := wavio.ReadFile(filename)
+	wf, err := wavio.ReadFile(args[0])
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	// print header
-	fmt.Print(wf)
+	fmt.Print(wf.String())
 
 	// print some samples
-	if *nFlag > 0 || *pFlag || *oFlag {
-		err := dumpSamples(wf, *nFlag, *pFlag, !*oFlag)
+	if *nFlag > 0 || *fFlag || *oFlag {
+		err := dumpSamples(wf, *nFlag, *fFlag, !*oFlag)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
@@ -42,51 +44,56 @@ func main() {
 	}
 }
 
-func dumpSamples(wf *wavio.File, N int, pcm bool, pretty bool) error {
+func dumpSamples(wf *wavio.File, N int, float, pretty bool) error {
 	const (
-		valFmt   = "  %#v\n"
-		pcmFmt   = "  [%d] = %d\n"
-		floatFmt = "  [%d] = %f\n"
+		defaultFmt = "data: %#v\n"
+		prettyFmt = "data: %T{\n"
 	)
-	fmt.Println("data:")
-	if pcm {
+
+	if wf.Format == wavio.PCM && !float {
 		// convert wav file samples to int16
 		x, err := wf.ToInt16(0, N)
 		if err != nil {
 			return err
 		}
 		if pretty {
+			fmt.Printf(prettyFmt, x)
 			for n, xn := range x {
-				fmt.Printf(pcmFmt, n, xn)
+				fmt.Printf("%5d: %6d,\n", n, xn)
 			}
+			fmt.Println("}")
 		} else {
-			fmt.Printf(valFmt, x)
+			fmt.Printf(defaultFmt, x)
 		}
 	} else {
-		if wf.BitsPerSample == 32 {
-			x, err := wf.ToFloat32(0, N)
-			if err != nil {
-				return err
-			}
-			if pretty {
-				for n, xn := range x {
-					fmt.Printf(floatFmt, n, xn)
-				}
-			} else {
-				fmt.Printf(valFmt, x)
-			}
-		} else {
-			// default to converting samples to 64-bit floating point
+		if wf.BitsPerSample == 64 {
 			x, err := wf.ToFloat64(0, N)
 			if err != nil {
 				return err
 			}
 			if pretty {
+				fmt.Printf(prettyFmt, x)
 				for n, xn := range x {
-					fmt.Printf(floatFmt, n, xn)
+					fmt.Printf("%5d: %20.12e,\n", n, xn)
 				}
+				fmt.Println("}")
 			} else {
-				fmt.Printf(valFmt, x)
+				fmt.Printf(defaultFmt, x)
+			}
+		// if float32 data or PCM data printed as float
+		} else {
+			x, err := wf.ToFloat32(0, N)
+			if err != nil {
+				return err
+			}
+			if pretty {
+				fmt.Printf(prettyFmt, x)
+				for n, xn := range x {
+					fmt.Printf("%5d: %13.6e,\n", n, xn)
+				}
+				fmt.Println("}")
+			} else {
+				fmt.Printf(defaultFmt, x)
 			}
 		}
 	}

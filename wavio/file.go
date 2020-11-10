@@ -36,14 +36,14 @@ func NewFile(format Format, channels uint16, sampleRate uint32,
 
 // String formats the header information in the wav file as a string
 func (wf *File) String() string {
-	var b strings.Builder
-	fmt.Fprintf(&b, "format:      %s\n", wf.Format)
-	fmt.Fprintf(&b, "channels:    %d\n", wf.Channels)
-	fmt.Fprintf(&b, "sample rate: %d\n", wf.SampleRate)
-	fmt.Fprintf(&b, "byte rate:   %d\n", wf.ByteRate)
-	fmt.Fprintf(&b, "block align: %d\n", wf.BlockAlign)
-	fmt.Fprintf(&b, "bits/sample: %d\n", wf.BitsPerSample)
-	fmt.Fprintf(&b, "data size:   %d\n", len(wf.Data))
+	b := &strings.Builder{}
+	fmt.Fprintf(b, "format:      %s\n", wf.Format)
+	fmt.Fprintf(b, "channels:    %d\n", wf.Channels)
+	fmt.Fprintf(b, "sample rate: %d\n", wf.SampleRate)
+	fmt.Fprintf(b, "byte rate:   %d\n", wf.ByteRate)
+	fmt.Fprintf(b, "block align: %d\n", wf.BlockAlign)
+	fmt.Fprintf(b, "bits/sample: %d\n", wf.BitsPerSample)
+	fmt.Fprintf(b, "data size:   %d\n", len(wf.Data))
 	return b.String()
 }
 
