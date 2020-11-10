@@ -1,12 +1,5 @@
 package wavio
 
-import (
-	"encoding/binary"
-	"fmt"
-	"io"
-	"os"
-)
-
 // Waveform Audio File Format
 // RIFF('WAVE'
 //      <fmt-ck>           // Format
@@ -18,6 +11,78 @@ import (
 //
 // <wave-data> → data( <bSampleData:Byte> ... )
 
+import (
+	"encoding/binary"
+	"fmt"
+	"io"
+	"os"
+)
+
+// Write writes wavio.File struct to a wav file
+func (wf *File) Write(filename string) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	err = binary.Write(file, binary.LittleEndian, []byte("RIFF"))
+	if err != nil {
+		return err
+	}
+	err = binary.Write(file, binary.LittleEndian, uint32(wf.Length()))
+	if err != nil {
+		return err
+	}
+	err = binary.Write(file, binary.LittleEndian, []byte("WAVEfmt "))
+	if err != nil {
+		return err
+	}
+	err = binary.Write(file, binary.LittleEndian, uint32(fmtSizeMin))
+	if err != nil {
+		return err
+	}
+	err = binary.Write(file, binary.LittleEndian, wf.Format)
+	if err != nil {
+		return err
+	}
+	err = binary.Write(file, binary.LittleEndian, wf.Channels)
+	if err != nil {
+		return err
+	}
+	err = binary.Write(file, binary.LittleEndian, wf.SampleRate)
+	if err != nil {
+		return err
+	}
+	err = binary.Write(file, binary.LittleEndian, wf.ByteRate)
+	if err != nil {
+		return err
+	}
+	err = binary.Write(file, binary.LittleEndian, wf.BlockAlign)
+	if err != nil {
+		return err
+	}
+	err = binary.Write(file, binary.LittleEndian, wf.BitsPerSample)
+	if err != nil {
+		return err
+	}
+	err = binary.Write(file, binary.LittleEndian, []byte("data"))
+	if err != nil {
+		return err
+	}
+	err = binary.Write(file, binary.LittleEndian, uint32(len(wf.Data)))
+	if err != nil {
+		return err
+	}
+	err = binary.Write(file, binary.LittleEndian, wf.Data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// read wav file into wavio.File
 func (wf *File) readRIFF(file *os.File) error {
 	var riffsize uint32
 	chunk := make([]byte, 4)
@@ -77,6 +142,7 @@ func (wf *File) readRIFF(file *os.File) error {
 	return nil
 }
 
+// read the wav file fmt chunk into wavio.File
 func (wf *File) readRIFFfmt(file *os.File) error {
 	var fmtSize, bytecount uint32
 	err := binary.Read(file, binary.LittleEndian, &fmtSize)

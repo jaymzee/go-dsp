@@ -5,7 +5,8 @@ import (
 	"strings"
 )
 
-const fmtSizeMin = 16 // minimum length of RIFF fmt chunk
+// minimum length of RIFF fmt chunk
+const fmtSizeMin = 16
 
 // File contains the raw data for the wav file
 type File struct {

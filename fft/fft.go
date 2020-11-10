@@ -1,3 +1,4 @@
+// Package fft provides functions for computing the Fast Fourier Transform
 package fft
 
 import (

@@ -1,11 +1,11 @@
-# Fast Fourier Transform
+## fft is a package for computing Fast Fourier Transforms
 
 ### FFT Fast Fourier Transform
 - iterative
 - in place
 - N log N time complexity
 
-### IFFT Inverse Fast Fourier Transformn
+### IFFT Inverse Fast Fourier Transform
 - iterative
 - in place
 - N log N time complexity

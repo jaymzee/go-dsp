@@ -9,7 +9,7 @@ import (
 
 func main() {
 	// parse program arguments
-	flag.Usage = func () {
+	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [options] wavfile\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "options:\n")
 		flag.PrintDefaults()
@@ -47,7 +47,7 @@ func main() {
 func dumpSamples(wf *wavio.File, N int, float, pretty bool) error {
 	const (
 		defaultFmt = "data: %#v\n"
-		prettyFmt = "data: %T{\n"
+		prettyFmt  = "data: %T{\n"
 	)
 
 	if wf.Format == wavio.PCM && !float {
@@ -80,8 +80,8 @@ func dumpSamples(wf *wavio.File, N int, float, pretty bool) error {
 			} else {
 				fmt.Printf(defaultFmt, x)
 			}
-		// if float32 data or PCM data printed as float
 		} else {
+			// float32 data or PCM data printed as float
 			x, err := wf.ToFloat32(0, N)
 			if err != nil {
 				return err

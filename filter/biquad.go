@@ -1,19 +1,10 @@
 package filter
 
 /************************************************************************
-* biquad is a direct form 1 filter where a and b are quadratic          *
-* a[0] is assumed to be 1.0                                             *
+* direct form I realization                                             *
 *                                                                       *
-* start with the Z transform of a filter with transfer function H(z):   *
-*                                                                       *
-*  Y(z) = H(z)·X(z)                                                     *
-*  Y(z) = N(z)/D(z)·X(z)                                                *
-*  D(z)·Y(z) = N(z)·X(z)                                                *
-*                                                                       *
-* inverse Z transform and collecting terms to one side gives:           *
-*                                                                       *
-*  y[n] =   b[0]x[n]   + b[1]x[n-1] + ... + b[L]x[n-L]                  *
-*         - a[1]y[n-1] - a[2]y[n-2] - ... - a[M]y[n-M]                  *
+*  y[n] =   b[0]x[n]   + b[1]x[n-1] + b[2]x[n-2]                        *
+*         - a[1]y[n-1] - a[2]y[n-2] - a[2]y[n-2]                        *
 *                                                                       *
 *              b0                                                       *
 * x[n] ----┬---|>-→(+)-------┬---→ y[n]                                 *
@@ -27,8 +18,8 @@ package filter
 *************************************************************************/
 
 // BiQuad filters input samples using the direct form I realization
-// b is the numerator quadratic polynomial
-// a is the denominator quadratic polynomial
+// b is the numerator polynomial
+// a is the denominator polynomial
 // x is the input samples
 func BiQuad(b, a [3]float64, x []float64) []float64 {
 	var x1, x2, y1, y2 float64

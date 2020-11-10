@@ -1,16 +1,7 @@
 package filter
 
 /************************************************************************
-* directform1 is a direct form 1 filter where a and b are any degree    *
-* a[0] is assumed to be 1.0                                             *
-*                                                                       *
-* start with the Z transform of a filter with transfer function H(z):   *
-*                                                                       *
-*  Y(z) = H(z)·X(z)                                                     *
-*  Y(z) = N(z)/D(z)·X(z)                                                *
-*  D(z)·Y(z) = N(z)·X(z)                                                *
-*                                                                       *
-* inverse Z transform and collecting terms to one side gives:           *
+* direct form I realization                                             *
 *                                                                       *
 *  y[n] =   b[0]x[n]   + b[1]x[n-1] + ... + b[L]x[n-L]                  *
 *         - a[1]y[n-1] - a[2]y[n-2] - ... - a[M]y[n-M]                  *
