@@ -7,16 +7,26 @@ import (
 	"os"
 )
 
-func main() {
-	// parse program arguments
+var (
+	fFlag bool
+	lFlag bool
+	nFlag int
+)
+
+func init() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [options] wavfile\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "options:\n")
 		flag.PrintDefaults()
 	}
-	fFlag := flag.Bool("f", false, "print samples as floating point")
-	oFlag := flag.Bool("l", false, "print samples on a line (no pretty print)")
-	nFlag := flag.Int("n", 0, "number of samples to print")
+	flag.BoolVar(&fFlag, "f", false, "print samples as floating point")
+	flag.BoolVar(&lFlag, "l", false,
+		"print samples on one line (no pretty print)")
+	flag.IntVar(&nFlag, "n", 0, "number of samples to print")
+}
+
+func main() {
+	// parse program arguments
 	flag.Parse()
 	args := flag.Args()
 	if len(args) != 1 {
@@ -35,8 +45,8 @@ func main() {
 	fmt.Print(wf.String())
 
 	// print some samples
-	if *nFlag > 0 || *fFlag || *oFlag {
-		err := dumpSamples(wf, *nFlag, *fFlag, !*oFlag)
+	if nFlag > 0 || fFlag || lFlag {
+		err := printSamples(wf)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
@@ -44,13 +54,14 @@ func main() {
 	}
 }
 
-func dumpSamples(wf *wavio.File, N int, float, pretty bool) error {
+func printSamples(wf *wavio.File) error {
 	const (
-		defaultFmt = "data: %#v\n"
-		prettyFmt  = "data: %T{\n"
+		defaultFmt = "data = %#v\n"
+		prettyFmt  = "data = %T{\n"
 	)
-
-	if wf.Format == wavio.PCM && !float {
+	N := nFlag
+	pretty := !lFlag
+	if wf.Format == wavio.PCM && !fFlag {
 		// convert wav file samples to int16
 		x, err := wf.ToInt16(0, N)
 		if err != nil {
