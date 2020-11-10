@@ -38,5 +38,5 @@ of any degree
 ``` go
 b := []Float64{0.0045, 1.0, -0.0045} // numerator (filter zeros)
 a := []Float64{1.0, -1.98, 0.991}    // denominator (filter poles)
-y := BiQuad(b, a, x)
+y := DirectForm1(b, a, x)
 ```
