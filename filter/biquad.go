@@ -21,16 +21,17 @@ package filter
 // b is the numerator polynomial
 // a is the denominator polynomial
 // x is the input samples
-func BiQuad(b, a [3]float64, x []float64) []float64 {
+func BiQuad(b, a [3]float64, xs []float64) []float64 {
 	var x1, x2, y1, y2 float64
-	y := make([]float64, len(x))
-	for n, x0 := range x {
-		y0 := b[0]*x0 + b[1]*x1 + b[2]*x2 - a[1]*y1 - a[2]*y2
-		y[n] = y0
+	ys := make([]float64, len(xs))
+	for n, x0 := range xs {
+		y0 := b[0]*x0 + b[1]*x1 + b[2]*x2
+		y0 -= a[1]*y1 + a[2]*y2
 		x2 = x1
 		x1 = x0
 		y2 = y1
 		y1 = y0
+		ys[n] = y0
 	}
-	return y
+	return ys
 }

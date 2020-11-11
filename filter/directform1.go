@@ -27,14 +27,15 @@ func DirectForm1(b, a, xs []float64) []float64 {
 	ys := make([]float64, len(xs))
 	for n, x0 := range xs {
 		x[0] = x0
-		y0 := 0.0
+		y0z := 0.0
 		for i := len(b) - 1; i >= 0; i-- {
-			y0 += b[i] * x[i]
+			y0z += b[i] * x[i]
 		}
+		y0p := 0.0
 		for i := len(a) - 1; i > 0; i-- {
-			y0 -= a[i] * y[i]
+			y0p += a[i] * y[i]
 		}
-		y[0] = y0
+		y[0] = y0z - y0p
 
 		for i := len(x) - 1; i > 0; i-- {
 			x[i] = x[i-1]
@@ -42,7 +43,7 @@ func DirectForm1(b, a, xs []float64) []float64 {
 		for i := len(y) - 1; i > 0; i-- {
 			y[i] = y[i-1]
 		}
-		ys[n] = y0
+		ys[n] = y[0]
 	}
 	return ys
 }
