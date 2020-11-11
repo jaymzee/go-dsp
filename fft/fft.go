@@ -56,7 +56,7 @@ func IterativeFFT(x []complex128, sign int) {
 		m2 := m >> 1
 		Wm := Twiddle(sign * m)
 		for k := 0; k < N; k += m {
-			W := complex(1, 0)
+			W := 1 + 0i
 			for j := 0; j < m2; j++ {
 				t := x[k+j]
 				u := W * x[k+j+m2]

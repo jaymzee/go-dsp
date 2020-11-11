@@ -29,17 +29,17 @@ func DirectForm1(b, a, xs []float64) []float64 {
 		x[0] = x0
 		y0 := 0.0
 		for i := len(b) - 1; i >= 0; i-- {
-			y0 += b[i] * u[i]
+			y0 += b[i] * x[i]
 		}
 		for i := len(a) - 1; i > 0; i-- {
-			y0 -= a[i] * v[i]
+			y0 -= a[i] * y[i]
 		}
 		y[0] = y0
 
-		for i := len(u) - 1; i > 0; i-- {
+		for i := len(x) - 1; i > 0; i-- {
 			x[i] = x[i-1]
 		}
-		for i := len(v) - 1; i > 0; i-- {
+		for i := len(y) - 1; i > 0; i-- {
 			y[i] = y[i-1]
 		}
 		ys[n] = y0
