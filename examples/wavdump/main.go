@@ -33,16 +33,17 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
+	filename := args[0]
 
 	// read wav file
-	wf, err := wavio.ReadFile(args[0])
+	wf, err := wavio.ReadFile(filename)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	// print header
-	fmt.Print(wf.String())
+	fmt.Print(wf)
 
 	// print some samples
 	if nFlag > 0 || fFlag || lFlag {
@@ -59,7 +60,7 @@ func printSamples(wf *wavio.File) error {
 		defaultFmt = "data = %#v\n"
 		prettyFmt  = "data = %T{\n"
 	)
-	N := nFlag
+	N := samples(wf)
 	pretty := !lFlag
 	if wf.Format == wavio.PCM && !fFlag {
 		// convert wav file samples to int16
@@ -109,4 +110,23 @@ func printSamples(wf *wavio.File) error {
 		}
 	}
 	return nil
+}
+
+// samples is -n flag bounded by the actual number of samples available
+func samples(wf *wavio.File) int {
+	var count int
+	if nFlag > 0 {
+		count = min(nFlag, wf.Samples())
+	} else {
+		// default to selecting all of the samples
+		count = wf.Samples()
+	}
+	return count
+}
+
+func min(a int, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

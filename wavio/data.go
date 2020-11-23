@@ -31,7 +31,7 @@ func (wf *File) ToFloat64(start, stop int) (data []float64, err error) {
 		return
 	}
 	stride := int(wf.BlockAlign)
-	buf := getBufferFromSlice(wf.Data, start*stride, stop*stride)
+	buf := bytes.NewBuffer(wf.Data[start*stride : stop*stride])
 	if wf.Format == Float {
 		if wf.BitsPerSample == 64 {
 			data = make([]float64, buf.Len()/stride)
@@ -84,7 +84,7 @@ func (wf *File) ToFloat32(start, stop int) (data []float32, err error) {
 		return
 	}
 	stride := int(wf.BlockAlign)
-	buf := getBufferFromSlice(wf.Data, start*stride, stop*stride)
+	buf := bytes.NewBuffer(wf.Data[start*stride : stop*stride])
 	if wf.Format == Float {
 		if wf.BitsPerSample == 64 {
 			x := make([]float64, buf.Len()/stride)
@@ -136,7 +136,7 @@ func (wf *File) ToInt16(start, stop int) (data []int16, err error) {
 		return nil, fmt.Errorf(monoConvertError, operation)
 	}
 	stride := int(wf.BlockAlign)
-	buf := getBufferFromSlice(wf.Data, start*stride, stop*stride)
+	buf := bytes.NewBuffer(wf.Data[start*stride : stop*stride])
 	if wf.Format == Float {
 		if wf.BitsPerSample == 64 {
 			x := make([]float64, buf.Len()/stride)
@@ -176,12 +176,4 @@ func (wf *File) ToInt16(start, stop int) (data []int16, err error) {
 	}
 	err = fmt.Errorf(formatConvertError, operation, wf.Format)
 	return
-}
-
-// slice b according to the rules described above and return a Buffer
-func getBufferFromSlice(b []byte, start, stop int) *bytes.Buffer {
-	if start <= 0 && (stop == 0 || stop >= len(b)) {
-		return bytes.NewBuffer(b)
-	}
-	return bytes.NewBuffer(b[start:stop])
 }

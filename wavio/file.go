@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-// minimum length of RIFF fmt chunk
-const fmtSizeMin = 16
+// FmtSize is the minimum length of RIFF fmt chunk
+const FmtSize = 16
 
 // File contains the raw data for the wav file
 type File struct {
@@ -48,7 +48,12 @@ func (wf *File) String() string {
 	return b.String()
 }
 
-// Length computes the RIFF length field of the wav file
-func (wf *File) Length() int {
-	return len(wf.Data) + fmtSizeMin + 2*4 + 3*4 // sizes = 8, tags = 12
+// RIFFSize computes the RIFF length field of the wav file
+func (wf *File) RIFFSize() int {
+	return len(wf.Data) + FmtSize + 2*4 + 3*4 // sizes = 8, tags = 12
+}
+
+// Samples computes the total number of samples in each channel
+func (wf *File) Samples() int {
+	return len(wf.Data) / int(wf.BlockAlign)
 }
