@@ -8,6 +8,7 @@ import (
 )
 
 var (
+	pFlag bool
 	fFlag bool
 	lFlag bool
 	nFlag int
@@ -23,6 +24,7 @@ func init() {
 	flag.BoolVar(&lFlag, "l", false,
 		"print samples on one line (no pretty print)")
 	flag.IntVar(&nFlag, "n", 0, "number of samples to print")
+	flag.BoolVar(&pFlag, "p", false, "plot samples")
 }
 
 func main() {
@@ -46,70 +48,22 @@ func main() {
 	fmt.Print(wf)
 
 	// print some samples
-	if nFlag > 0 || fFlag || lFlag {
+	if (nFlag > 0 || fFlag || lFlag) && !pFlag {
 		err := printSamples(wf)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 	}
-}
 
-func printSamples(wf *wavio.File) error {
-	const (
-		defaultFmt = "data = %#v\n"
-		prettyFmt  = "data = %T{\n"
-	)
-	N := samples(wf)
-	pretty := !lFlag
-	if wf.Format == wavio.PCM && !fFlag {
-		// convert wav file samples to int16
-		x, err := wf.ToInt16(0, N)
+	// plot some samples
+	if pFlag {
+		err := plotSamples(wf)
 		if err != nil {
-			return err
-		}
-		if pretty {
-			fmt.Printf(prettyFmt, x)
-			for n, xn := range x {
-				fmt.Printf("%5d: %6d,\n", n, xn)
-			}
-			fmt.Println("}")
-		} else {
-			fmt.Printf(defaultFmt, x)
-		}
-	} else {
-		if wf.BitsPerSample == 64 {
-			x, err := wf.ToFloat64(0, N)
-			if err != nil {
-				return err
-			}
-			if pretty {
-				fmt.Printf(prettyFmt, x)
-				for n, xn := range x {
-					fmt.Printf("%5d: %20.12e,\n", n, xn)
-				}
-				fmt.Println("}")
-			} else {
-				fmt.Printf(defaultFmt, x)
-			}
-		} else {
-			// float32 data or PCM data printed as float
-			x, err := wf.ToFloat32(0, N)
-			if err != nil {
-				return err
-			}
-			if pretty {
-				fmt.Printf(prettyFmt, x)
-				for n, xn := range x {
-					fmt.Printf("%5d: %13.6e,\n", n, xn)
-				}
-				fmt.Println("}")
-			} else {
-				fmt.Printf(defaultFmt, x)
-			}
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
 		}
 	}
-	return nil
 }
 
 // samples is -n flag bounded by the actual number of samples available
@@ -122,6 +76,13 @@ func samples(wf *wavio.File) int {
 		count = wf.Samples()
 	}
 	return count
+}
+
+func max(a int, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 func min(a int, b int) int {
