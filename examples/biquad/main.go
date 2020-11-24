@@ -47,11 +47,13 @@ func main() {
 	// parse polynomials
 	var a, b [3]float64
 	if err := parsePoly3(aFlag, &a); err != nil {
-		fmt.Fprintf(os.Stderr, "a: %v\n", err)
+		fmt.Fprintln(os.Stderr, "a", err)
+		flag.Usage()
 		os.Exit(1)
 	}
 	if err := parsePoly3(bFlag, &b); err != nil {
-		fmt.Fprintf(os.Stderr, "b: %v\n", err)
+		fmt.Fprintln(os.Stderr, "b", err)
+		flag.Usage()
 		os.Exit(1)
 	}
 
@@ -78,14 +80,16 @@ func main() {
 
 func parsePoly3(poly string, arr *[3]float64) error {
 	split := strings.Fields(poly)
-	if len(split) > 3 {
-		return fmt.Errorf("too many coefficents in %q", poly)
+	if len(split) == 0 {
+		return fmt.Errorf("polynomial expected")
+	} else if len(split) > 3 {
+		return fmt.Errorf("polynomial has too many coefficents")
 	}
 	for i, str := range split {
 		if c, err := strconv.ParseFloat(str, 64); err == nil {
 			arr[i] = c
 		} else {
-			return err
+			return fmt.Errorf("polynomial malformed")
 		}
 	}
 	return nil
