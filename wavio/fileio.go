@@ -102,7 +102,7 @@ func (wf *File) readRIFF(file *os.File) error {
 			}
 			_, err := file.Seek(int64(chunksize), io.SeekCurrent)
 			if err != nil {
-				return err
+				return fmt.Errorf("%s: %s", wf.filename, err)
 			}
 		}
 	}
@@ -142,7 +142,7 @@ func (wf *File) readRIFFfmt(file *os.File) error {
 			wf.filename, skip)
 		_, err := file.Seek(int64(skip), io.SeekCurrent)
 		if err != nil {
-			return err
+			return fmt.Errorf("%s: %s", wf.filename, err)
 		}
 		bytecount += skip
 	}

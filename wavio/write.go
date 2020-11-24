@@ -55,8 +55,8 @@ func Write(fname string, format Format, rate uint32, slice interface{}) error {
 		}
 	}
 	if wf == nil {
-		return fmt.Errorf("Write: conversion from %T to %s is not supported",
-			slice, format)
+		return fmt.Errorf("Write %s: conversion from %T to %s not supported",
+			fname, slice, format)
 	}
 	copy(wf.Data, buf.Bytes())
 	return wf.Write(fname)

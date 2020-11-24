@@ -40,7 +40,7 @@ func main() {
 	// read wav file
 	wf, err := wavio.ReadFile(filename)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
