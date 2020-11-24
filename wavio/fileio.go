@@ -26,60 +26,27 @@ func (wf *File) Write(filename string) error {
 	}
 	defer file.Close()
 
-	err = binary.Write(file, binary.LittleEndian, []byte("RIFF"))
-	if err != nil {
-		return err
-	}
-	err = binary.Write(file, binary.LittleEndian, uint32(wf.RIFFSize()))
-	if err != nil {
-		return err
-	}
-	err = binary.Write(file, binary.LittleEndian, []byte("WAVEfmt "))
-	if err != nil {
-		return err
-	}
-	err = binary.Write(file, binary.LittleEndian, uint32(FmtSize))
-	if err != nil {
-		return err
-	}
-	err = binary.Write(file, binary.LittleEndian, wf.Format)
-	if err != nil {
-		return err
-	}
-	err = binary.Write(file, binary.LittleEndian, wf.Channels)
-	if err != nil {
-		return err
-	}
-	err = binary.Write(file, binary.LittleEndian, wf.SampleRate)
-	if err != nil {
-		return err
-	}
-	err = binary.Write(file, binary.LittleEndian, wf.ByteRate)
-	if err != nil {
-		return err
-	}
-	err = binary.Write(file, binary.LittleEndian, wf.BlockAlign)
-	if err != nil {
-		return err
-	}
-	err = binary.Write(file, binary.LittleEndian, wf.BitsPerSample)
-	if err != nil {
-		return err
-	}
-	err = binary.Write(file, binary.LittleEndian, []byte("data"))
-	if err != nil {
-		return err
-	}
-	err = binary.Write(file, binary.LittleEndian, uint32(len(wf.Data)))
-	if err != nil {
-		return err
-	}
-	err = binary.Write(file, binary.LittleEndian, wf.Data)
-	if err != nil {
-		return err
+	write := func(v interface{}) {
+		if err == nil {
+			err = binary.Write(file, binary.LittleEndian, v)
+		}
 	}
 
-	return nil
+	write([]byte("RIFF"))
+	write(uint32(wf.RIFFSize()))
+	write([]byte("WAVEfmt "))
+	write(uint32(FmtSize))
+	write(wf.Format)
+	write(wf.Channels)
+	write(wf.SampleRate)
+	write(wf.ByteRate)
+	write(wf.BlockAlign)
+	write(wf.BitsPerSample)
+	write([]byte("data"))
+	write(uint32(len(wf.Data)))
+	write(wf.Data)
+
+	return err
 }
 
 // read wav file into wavio.File
@@ -120,7 +87,7 @@ func (wf *File) readRIFF(file *os.File) error {
 			wf.Data = make([]byte, datasize)
 			nbytes, err := file.Read(wf.Data)
 			if err != nil {
-				return err
+				return fmt.Errorf("%s: data expected", wf.filename)
 			}
 			if uint32(nbytes) != datasize {
 				return fmt.Errorf("%s: data truncated", wf.filename)
@@ -144,41 +111,30 @@ func (wf *File) readRIFF(file *os.File) error {
 
 // read the wav file fmt chunk into wavio.File
 func (wf *File) readRIFFfmt(file *os.File) error {
-	var size, bytecount uint32
-	err := binary.Read(file, binary.LittleEndian, &size)
-	if err != nil {
-		return fmt.Errorf("%s: expected fmt size", wf.filename)
+	var err error
+	read := func(expect string, v interface{}) {
+		if err == nil && binary.Read(file, binary.LittleEndian, v) != nil {
+			err = fmt.Errorf("%s: expected fmt %s", wf.filename, expect)
+		}
 	}
+
+	var size, bytecount uint32
+	read("size", &size)
 	bytecount += 4
 	if size >= FmtSize {
-		err = binary.Read(file, binary.LittleEndian, &wf.Format)
+		read("format", &wf.Format)
+		read("channels", &wf.Channels)
+		read("samplerate", &wf.SampleRate)
+		read("byterate", &wf.ByteRate)
+		read("blockalign", &wf.BlockAlign)
+		read("bitspersample", &wf.BitsPerSample)
 		if err != nil {
-			return fmt.Errorf("%s: expected fmt format", wf.filename)
-		}
-		err = binary.Read(file, binary.LittleEndian, &wf.Channels)
-		if err != nil {
-			return fmt.Errorf("%s: expected fmt channels", wf.filename)
-		}
-		err = binary.Read(file, binary.LittleEndian, &wf.SampleRate)
-		if err != nil {
-			return fmt.Errorf("%s: expected fmt samplerate", wf.filename)
-		}
-		err = binary.Read(file, binary.LittleEndian, &wf.ByteRate)
-		if err != nil {
-			return fmt.Errorf("%s: expected fmt byterate", wf.filename)
-		}
-		err = binary.Read(file, binary.LittleEndian, &wf.BlockAlign)
-		if err != nil {
-			return fmt.Errorf("%s: expected fmt blockalign", wf.filename)
-		}
-		err = binary.Read(file, binary.LittleEndian, &wf.BitsPerSample)
-		if err != nil {
-			return fmt.Errorf("%s: expected fmt bitspersample", wf.filename)
+			return err
 		}
 		bytecount += FmtSize
 	} else {
-		fmt.Fprintf(os.Stderr, "%s: expected fmt size %v >= %v bytes\n",
-			wf.filename, size, FmtSize)
+		return fmt.Errorf("%s: expected fmt size at least %v bytes, got %v\n",
+			wf.filename, FmtSize, size)
 	}
 	if bytecount < size+4 {
 		skip := size + 4 - bytecount
