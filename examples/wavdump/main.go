@@ -51,7 +51,7 @@ func main() {
 	if (nFlag > 0 && !aFlag) || fFlag || lFlag {
 		err := printSamples(wf)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			fmt.Fprintf(os.Stderr, "\x1b[1;31mdata:\x1b[0m %s\n", err)
 			os.Exit(1)
 		}
 	}
@@ -60,7 +60,7 @@ func main() {
 	if aFlag {
 		err := plotSamples(wf)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			fmt.Fprintf(os.Stderr, "\x1b[1;31mplot:\x1b[0m %s\n", err)
 			os.Exit(1)
 		}
 	}

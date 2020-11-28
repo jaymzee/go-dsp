@@ -55,15 +55,15 @@ func (wf *File) readRIFF(file *os.File) error {
 	chunk := make([]byte, 4)
 	err := binary.Read(file, binary.LittleEndian, &chunk)
 	if err != nil || string(chunk) != "RIFF" {
-		return fmt.Errorf("%s: expected RIFF", wf.filename)
+		return fmt.Errorf("RIFF expected")
 	}
 	err = binary.Read(file, binary.LittleEndian, &riffsize)
 	if err != nil {
-		return fmt.Errorf("%s: expected RIFF size", wf.filename)
+		return fmt.Errorf("RIFF size expected")
 	}
 	err = binary.Read(file, binary.LittleEndian, &chunk)
 	if err != nil || string(chunk) != "WAVE" {
-		return fmt.Errorf("%s: expected WAVE", wf.filename)
+		return fmt.Errorf("WAVE expected")
 	}
 	for {
 		err = binary.Read(file, binary.LittleEndian, &chunk)
@@ -71,7 +71,7 @@ func (wf *File) readRIFF(file *os.File) error {
 			break
 		}
 		if err != nil {
-			return fmt.Errorf("%s: expected chunk", wf.filename)
+			return fmt.Errorf("<chunk> expected")
 		}
 		if string(chunk) == "fmt " {
 			err = wf.readRIFFfmt(file)
@@ -82,27 +82,25 @@ func (wf *File) readRIFF(file *os.File) error {
 			var datasize uint32
 			err = binary.Read(file, binary.LittleEndian, &datasize)
 			if err != nil {
-				return fmt.Errorf("%s: expected data size", wf.filename)
+				return fmt.Errorf("<wave-data> size expected")
 			}
 			wf.Data = make([]byte, datasize)
 			nbytes, err := file.Read(wf.Data)
 			if err != nil {
-				return fmt.Errorf("%s: data expected", wf.filename)
+				return fmt.Errorf("<wave-data> data expected")
 			}
 			if uint32(nbytes) != datasize {
-				return fmt.Errorf("%s: data truncated", wf.filename)
+				return fmt.Errorf("<wave-data> data truncated")
 			}
-		} else {
-			fmt.Fprintf(os.Stderr, "%s: skipping chunk %s\n",
-				wf.filename, chunk)
+		} else { // skip chunk
 			var chunksize uint32
 			err = binary.Read(file, binary.LittleEndian, &chunksize)
 			if err != nil {
-				return fmt.Errorf("%s: expected chunk size", wf.filename)
+				return fmt.Errorf("<chunk> size expected")
 			}
 			_, err := file.Seek(int64(chunksize), io.SeekCurrent)
 			if err != nil {
-				return fmt.Errorf("%s: %s", wf.filename, err)
+				return err
 			}
 		}
 	}
@@ -114,7 +112,7 @@ func (wf *File) readRIFFfmt(file *os.File) error {
 	var err error
 	read := func(expect string, v interface{}) {
 		if err == nil && binary.Read(file, binary.LittleEndian, v) != nil {
-			err = fmt.Errorf("%s: expected fmt %s", wf.filename, expect)
+			err = fmt.Errorf("<fmt-ck> %s expected", expect)
 		}
 	}
 
@@ -133,18 +131,12 @@ func (wf *File) readRIFFfmt(file *os.File) error {
 		}
 		bytecount += FmtSize
 	} else {
-		return fmt.Errorf("%s: expected fmt size at least %v bytes, got %v\n",
-			wf.filename, FmtSize, size)
+		return fmt.Errorf("<fmt-ck> size must be at least %v bytes, got %v\n",
+			FmtSize, size)
 	}
 	if bytecount < size+4 {
 		skip := size + 4 - bytecount
-		fmt.Fprintf(os.Stderr, "%s: skipping extra %v bytes at end of fmt\n",
-			wf.filename, skip)
-		_, err := file.Seek(int64(skip), io.SeekCurrent)
-		if err != nil {
-			return fmt.Errorf("%s: %s", wf.filename, err)
-		}
-		bytecount += skip
+		_, err = file.Seek(int64(skip), io.SeekCurrent)
 	}
-	return nil
+	return err
 }

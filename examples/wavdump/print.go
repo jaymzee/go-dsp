@@ -7,8 +7,8 @@ import (
 
 func printSamples(wf *wavio.File) error {
 	const (
-		defaultFmt = "data = %#v\n"
-		prettyFmt  = "data = %T{\n"
+		defaultFmt = "data: %#v\n"
+		prettyFmt  = "data: %T{\n"
 	)
 	N := samples(wf)
 	pretty := !lFlag

@@ -25,7 +25,7 @@ const (
 // if start is zero and stop > total samples, convert the entire slice.
 // Otherwise slice the samples before conversion.
 func (wf *File) ToFloat64(start, stop int) (data []float64, err error) {
-	operation := "float64 " + wf.filename
+	operation := "float64"
 	if wf.Channels != 1 {
 		err = fmt.Errorf(monoConvertError, operation)
 		return
@@ -78,7 +78,7 @@ func (wf *File) ToFloat64(start, stop int) (data []float64, err error) {
 // if start is zero and stop > total samples, convert the entire slice.
 // Otherwise slice the samples before conversion.
 func (wf *File) ToFloat32(start, stop int) (data []float32, err error) {
-	operation := "float32 " + wf.filename
+	operation := "float32"
 	if wf.Channels != 1 {
 		err = fmt.Errorf(monoConvertError, operation)
 		return
@@ -131,7 +131,7 @@ func (wf *File) ToFloat32(start, stop int) (data []float32, err error) {
 // if start is zero and stop > total samples, convert the entire slice.
 // Otherwise slice the samples before conversion.
 func (wf *File) ToInt16(start, stop int) (data []int16, err error) {
-	operation := "int16 " + wf.filename
+	operation := "int16"
 	if wf.Channels != 1 {
 		return nil, fmt.Errorf(monoConvertError, operation)
 	}

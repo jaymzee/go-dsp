@@ -1,6 +1,9 @@
 package wavio
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 // ReadFile reads a wav file into memory
 func ReadFile(filename string) (wf *File, err error) {
@@ -10,10 +13,10 @@ func ReadFile(filename string) (wf *File, err error) {
 	}
 	defer file.Close()
 
-	wf = &File{filename: filename}
+	wf = new(File)
 	err = wf.readRIFF(file)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %s", filename, err)
 	}
 	return
 }
@@ -26,6 +29,9 @@ func ReadFloat64(filename string) (data []float64, rate uint32, err error) {
 	}
 	rate = wf.SampleRate
 	data, err = wf.ToFloat64(0, wf.Samples())
+	if err != nil {
+		err = fmt.Errorf("%s: %s", filename, err)
+	}
 	return
 }
 
@@ -37,6 +43,9 @@ func ReadFloat32(filename string) (data []float32, rate uint32, err error) {
 	}
 	rate = wf.SampleRate
 	data, err = wf.ToFloat32(0, wf.Samples())
+	if err != nil {
+		err = fmt.Errorf("%s: %s", filename, err)
+	}
 	return
 }
 
@@ -48,5 +57,8 @@ func ReadInt16(filename string) (data []int16, rate uint32, err error) {
 	}
 	rate = wf.SampleRate
 	data, err = wf.ToInt16(0, wf.Samples())
+	if err != nil {
+		err = fmt.Errorf("%s: %s", filename, err)
+	}
 	return
 }

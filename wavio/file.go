@@ -17,7 +17,6 @@ type File struct {
 	BlockAlign    uint16 // block align = channels * bitspersample / 8
 	BitsPerSample uint16 // 8, 16, 32 or 64 bits
 	Data          []byte // samples
-	filename      string // filename only to provide helpful error messages
 }
 
 // NewFile creates and initializes a new wav file

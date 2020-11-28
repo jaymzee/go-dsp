@@ -24,7 +24,7 @@ func init() {
 		fmt.Fprintln(os.Stderr, "options:")
 		flag.PrintDefaults()
 		fmt.Fprintln(os.Stderr, "examples:")
-		fmt.Fprintf(os.Stderr, "  %s -b=%s -a=%q %s %s\n",
+		fmt.Fprintf(os.Stderr, "  %s -b=%q -a=%q %s %s\n",
 			name, "1", "1 0.5", in, out)
 		fmt.Fprintf(os.Stderr, "  %s -b=%q -a=%q %s %s\n",
 			name, "0.00425 0.0 -0.00425", "1.0 -1.98 0.991", in, out)
