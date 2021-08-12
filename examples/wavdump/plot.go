@@ -16,12 +16,17 @@ type Plot struct {
 	N int
 }
 
-func plotSamples(wf *wavio.File, W, H int) error {
-	plot, err := WavPlot(wf, W, H)
+func plotSamples(wf *wavio.File) error {
+	winsize, err := GetWinsize()
+	if err != nil {
+		winsize = &Winsize { 24, 80, 0, 0 }
+	}
+
+	plot, err := WavPlot(wf, int(winsize.Cols) - 16, int(winsize.Rows) - 3)
 	if err != nil {
 		return err
 	}
-	// term := os.Getenv("TERM")
+
 	plot.RenderASCII(os.Stdout)
 	return nil
 }

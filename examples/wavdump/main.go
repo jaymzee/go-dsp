@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jaymzee/go-dsp/wavio"
 	"os"
+	"strings"
 )
 
 var (
@@ -12,9 +13,11 @@ var (
 	lFlag bool
 	tFlag bool
 	nFlag int
+	useKitty bool
 )
 
 func init() {
+	useKitty = strings.Contains(os.Getenv("TERM"), "kitty") && isatty()
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [options] wavfile\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "options:\n")
@@ -24,7 +27,11 @@ func init() {
 	flag.BoolVar(&lFlag, "l", false,
 		"print samples on one line (no pretty print)")
 	flag.IntVar(&nFlag, "n", 0, "number of samples to print/plot")
-	flag.BoolVar(&tFlag, "t", false, "plot samples to stdout")
+	if useKitty {
+		flag.BoolVar(&tFlag, "t", false, "plot samples in terminal")
+	} else {
+		flag.BoolVar(&tFlag, "t", false, "plot samples to stdout")
+	}
 }
 
 func main() {
@@ -45,7 +52,8 @@ func main() {
 	}
 
 	// print header
-	fmt.Print(wf)
+	// fmt.Print(wf)
+	fmt.Println(wf.Summary())
 
 	// print some samples
 	if (nFlag > 0 && !tFlag) || fFlag || lFlag {
@@ -58,7 +66,7 @@ func main() {
 
 	// plot some samples
 	if tFlag {
-		err := plotSamples(wf, 64, 21)
+		err := plotSamples(wf)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "\x1b[1;31mplot:\x1b[0m %s\n", err)
 			os.Exit(1)

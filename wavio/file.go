@@ -47,6 +47,20 @@ func (wf *File) String() string {
 	return b.String()
 }
 
+// Summary formats the header information in the wav file as a string
+// but more terse so it fits on one line
+func (wf *File) Summary() string {
+	b := &strings.Builder{}
+	fmt.Fprintf(b, "fmt %s ", wf.Format)
+	fmt.Fprintf(b, "%d ch ", wf.Channels)
+	fmt.Fprintf(b, "%d-bit ", wf.BitsPerSample)
+	fmt.Fprintf(b, "%d Hz ", wf.SampleRate)
+	fmt.Fprintf(b, "%d Bps ", wf.ByteRate)
+	fmt.Fprintf(b, "%d align ", wf.BlockAlign)
+	fmt.Fprintf(b, "%d bytes", len(wf.Data))
+	return b.String()
+}
+
 // RIFFSize computes the RIFF length field of the wav file
 func (wf *File) RIFFSize() int {
 	return len(wf.Data) + FmtSize + 2*4 + 3*4 // sizes = 8, tags = 12
