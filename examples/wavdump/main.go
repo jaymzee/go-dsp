@@ -8,9 +8,9 @@ import (
 )
 
 var (
-	aFlag bool
 	fFlag bool
 	lFlag bool
+	tFlag bool
 	nFlag int
 )
 
@@ -20,11 +20,11 @@ func init() {
 		fmt.Fprintf(os.Stderr, "options:\n")
 		flag.PrintDefaults()
 	}
-	flag.BoolVar(&aFlag, "a", false, "plot samples as ascii art")
 	flag.BoolVar(&fFlag, "f", false, "print samples as floating point")
 	flag.BoolVar(&lFlag, "l", false,
 		"print samples on one line (no pretty print)")
-	flag.IntVar(&nFlag, "n", 0, "number of samples to print")
+	flag.IntVar(&nFlag, "n", 0, "number of samples to print/plot")
+	flag.BoolVar(&tFlag, "t", false, "plot samples to stdout")
 }
 
 func main() {
@@ -48,7 +48,7 @@ func main() {
 	fmt.Print(wf)
 
 	// print some samples
-	if (nFlag > 0 && !aFlag) || fFlag || lFlag {
+	if (nFlag > 0 && !tFlag) || fFlag || lFlag {
 		err := printSamples(wf)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "\x1b[1;31mdata:\x1b[0m %s\n", err)
@@ -57,7 +57,7 @@ func main() {
 	}
 
 	// plot some samples
-	if aFlag {
+	if tFlag {
 		err := plotSamples(wf, 64, 21)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "\x1b[1;31mplot:\x1b[0m %s\n", err)

@@ -21,6 +21,7 @@ func plotSamples(wf *wavio.File, W, H int) error {
 	if err != nil {
 		return err
 	}
+	// term := os.Getenv("TERM")
 	plot.RenderASCII(os.Stdout)
 	return nil
 }
