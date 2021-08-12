@@ -58,7 +58,7 @@ func main() {
 
 	// plot some samples
 	if aFlag {
-		err := plotSamples(wf)
+		err := plotSamples(wf, 64, 21)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "\x1b[1;31mplot:\x1b[0m %s\n", err)
 			os.Exit(1)

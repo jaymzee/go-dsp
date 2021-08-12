@@ -4,21 +4,37 @@ import (
 	"fmt"
 	"github.com/jaymzee/go-dsp/wavio"
 	"math"
+	"os"
 )
 
-func plotSamples(wf *wavio.File) error {
-	const (
-		W = 64
-		H = 21
-	)
-	N := samples(wf)
-	x, err := wf.ToFloat64(0, N)
+type Plot struct {
+	data []int
+	ymin float64
+	ymax float64
+	W int
+	H int
+	N int
+}
+
+func plotSamples(wf *wavio.File, W, H int) error {
+	plot, err := WavPlot(wf, W, H)
 	if err != nil {
 		return err
 	}
+	plot.RenderASCII(os.Stdout)
+	return nil
+}
+
+
+func WavPlot(wf *wavio.File, W int, H int) (*Plot, error) {
+	N := samples(wf)
+	x, err := wf.ToFloat64(0, N)
+	if err != nil {
+		return nil, err
+	}
 
 	// resample to fit screen
-	var y [W]float64
+	y := make([]float64, W)
 	M := (N-1)/W + 1
 	i := 0
 	j := 0
@@ -40,31 +56,31 @@ func plotSamples(wf *wavio.File) error {
 
 	// rescale and plot
 	ymin, ymax := minmax(y[:])
-	var plot [W]int
+	data := make([]int, W)
 	for n, yn := range y {
-		plot[n] = H - 1 - int((yn-ymin)/(ymax-ymin)*float64(H-1))
+		data[n] = H - 1 - int((yn-ymin)/(ymax-ymin)*float64(H-1))
 	}
+	return &Plot { data, ymin, ymax, actualW, H, N }, nil
+}
 
-	// render plot as text
-	for i := 0; i < H; i++ {
+func (plot *Plot) RenderASCII(outf *os.File) {
+	for i := 0; i < plot.H; i++ {
 		if i == 0 {
-			fmt.Printf("\n%11.4e |", ymax)
-		} else if i == H-1 {
-			fmt.Printf("\n%11.4e |", ymin)
+			fmt.Fprintf(outf, "\n%11.4e |", plot.ymax)
+		} else if i == plot.H - 1 {
+			fmt.Fprintf(outf, "\n%11.4e |", plot.ymin)
 		} else {
-			fmt.Printf("\n            |")
+			fmt.Fprintf(outf, "\n            |")
 		}
-		for j := 0; j < min(actualW, N); j++ {
-			if plot[j] == i {
-				fmt.Print("*")
+		for j := 0; j < min(plot.W, plot.N); j++ {
+			if plot.data[j] == i {
+				fmt.Fprint(outf, "*")
 			} else {
-				fmt.Print(" ")
+				fmt.Fprint(outf, " ")
 			}
 		}
 	}
-	fmt.Println()
-
-	return nil
+	fmt.Fprintln(outf)
 }
 
 func minmax(xs []float64) (min float64, max float64) {
