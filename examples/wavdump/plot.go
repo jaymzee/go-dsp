@@ -11,18 +11,18 @@ type Plot struct {
 	data []int
 	ymin float64
 	ymax float64
-	W int
-	H int
-	N int
+	W    int
+	H    int
+	N    int
 }
 
 func plotSamples(wf *wavio.File) error {
 	winsize, err := GetWinsize()
 	if err != nil {
-		winsize = &Winsize { 24, 80, 0, 0 }
+		winsize = &Winsize{24, 80, 0, 0}
 	}
 
-	plot, err := WavPlot(wf, int(winsize.Cols) - 16, int(winsize.Rows) - 3)
+	plot, err := WavPlot(wf, int(winsize.Cols)-16, int(winsize.Rows)-3)
 	if err != nil {
 		return err
 	}
@@ -30,7 +30,6 @@ func plotSamples(wf *wavio.File) error {
 	plot.RenderASCII(os.Stdout)
 	return nil
 }
-
 
 func WavPlot(wf *wavio.File, W int, H int) (*Plot, error) {
 	N := samples(wf)
@@ -66,14 +65,14 @@ func WavPlot(wf *wavio.File, W int, H int) (*Plot, error) {
 	for n, yn := range y {
 		data[n] = H - 1 - int((yn-ymin)/(ymax-ymin)*float64(H-1))
 	}
-	return &Plot { data, ymin, ymax, actualW, H, N }, nil
+	return &Plot{data, ymin, ymax, actualW, H, N}, nil
 }
 
 func (plot *Plot) RenderASCII(outf *os.File) {
 	for i := 0; i < plot.H; i++ {
 		if i == 0 {
 			fmt.Fprintf(outf, "\n%11.4e |", plot.ymax)
-		} else if i == plot.H - 1 {
+		} else if i == plot.H-1 {
 			fmt.Fprintf(outf, "\n%11.4e |", plot.ymin)
 		} else {
 			fmt.Fprintf(outf, "\n            |")

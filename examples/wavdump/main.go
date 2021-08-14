@@ -9,10 +9,10 @@ import (
 )
 
 var (
-	fFlag bool
-	lFlag bool
-	tFlag bool
-	nFlag int
+	fFlag    bool
+	lFlag    bool
+	tFlag    bool
+	nFlag    int
 	useKitty bool
 )
 
