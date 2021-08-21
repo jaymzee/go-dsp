@@ -61,7 +61,7 @@ func WavPlot(wf *wavio.File, W int, H int) (*Plot, error) {
 		j++
 		if j == M {
 			if sFlag {
-				y[i] = 10 * math.Log10(math.Sqrt(t / float64(M)))
+				y[i] = clamp(10 * math.Log10(math.Sqrt(t / float64(M))), -90, 0)
 			} else if rFlag {
 				y[i] = math.Sqrt(t / float64(M))
 			} else {
@@ -74,7 +74,7 @@ func WavPlot(wf *wavio.File, W int, H int) (*Plot, error) {
 	}
 	if j > 0 {
 		if sFlag {
-			y[i] = 10 * math.Log10(math.Sqrt(t / float64(j)))
+			y[i] = clamp(10 * math.Log10(math.Sqrt(t / float64(j))), -90, 0)
 		} else if rFlag {
 			y[i] = math.Sqrt(t / float64(j))
 		} else {
@@ -85,9 +85,6 @@ func WavPlot(wf *wavio.File, W int, H int) (*Plot, error) {
 
 	// rescale and plot
 	ymin, ymax := minmax(y[:])
-	if sFlag && ymin < -90 {
-		ymin = -90 // clamp at -90dB
-	}
 	data := make([]int, W)
 	for n, yn := range y {
 		data[n] = H - 1 - int((yn-ymin)/(ymax-ymin)*float64(H-1))
@@ -139,6 +136,10 @@ func (plot *Plot) RenderASCII(outf *os.File) {
 		}
 	}
 	fmt.Fprintln(outf)
+}
+
+func clamp(x float64, mn float64, mx float64) float64 {
+	return math.Min(math.Max(x, mn), mx)
 }
 
 func minmax(xs []float64) (min float64, max float64) {
