@@ -21,7 +21,7 @@ func printSamples(wf *wavio.File) error {
 		if pretty {
 			fmt.Printf(prettyFmt, x)
 			for n, xn := range x {
-				fmt.Printf("%5d: %6d,\n", first + n, xn)
+				fmt.Printf("%5d: %6d,\n", first+n, xn)
 			}
 			fmt.Println("}")
 		} else {
@@ -36,7 +36,7 @@ func printSamples(wf *wavio.File) error {
 			if pretty {
 				fmt.Printf(prettyFmt, x)
 				for n, xn := range x {
-					fmt.Printf("%5d: %20.12e,\n", first + n, xn)
+					fmt.Printf("%5d: %20.12e,\n", first+n, xn)
 				}
 				fmt.Println("}")
 			} else {
@@ -51,7 +51,7 @@ func printSamples(wf *wavio.File) error {
 			if pretty {
 				fmt.Printf(prettyFmt, x)
 				for n, xn := range x {
-					fmt.Printf("%5d: %13.6e,\n", first + n, xn)
+					fmt.Printf("%5d: %13.6e,\n", first+n, xn)
 				}
 				fmt.Println("}")
 			} else {

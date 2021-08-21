@@ -14,7 +14,7 @@ var (
 	lFlag    bool
 	pFlag    bool
 	rFlag    bool
-	sFlag    bool
+	sFlag    float64
 	nFlag    string
 	useKitty bool
 )
@@ -37,8 +37,8 @@ func init() {
 		"print samples on one line (no pretty print)")
 	flag.StringVar(&nFlag, "n", "", nFlagHelp)
 	flag.BoolVar(&pFlag, "p", false, "plot samples")
-	flag.BoolVar(&rFlag, "r", false, "RMS plot option")
-	flag.BoolVar(&sFlag, "s", false, "Log RMS plot option")
+	flag.BoolVar(&rFlag, "r", false, "RMS plot")
+	flag.Float64Var(&sFlag, "s", 0.0, "Log RMS plot floor dB (e.g. -40 dB)")
 }
 
 func main() {
@@ -72,7 +72,7 @@ func main() {
 
 	// plot some samples
 	if pFlag {
-		err := plotSamples(wf)
+		err := plotWave(wf)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "\x1b[1;31mplot:\x1b[0m %s\n", err)
 			os.Exit(1)
@@ -85,7 +85,7 @@ func printSummary(wf *wavio.File) {
 	first, last := sampleRange(wf, nFlag)
 	selection := fmt.Sprintf(" [%d:%d]", first, last)
 	fmt.Print(summary)
-	if getTermWidth() > len(summary) + len(selection) {
+	if getTermWidth() > len(summary)+len(selection) {
 		fmt.Print(selection)
 	}
 	fmt.Println()

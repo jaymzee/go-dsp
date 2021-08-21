@@ -16,35 +16,61 @@ type Plot struct {
 	N    int
 }
 
-func plotSamples(wf *wavio.File) error {
+type FuncF64 func(float64) float64
+
+func idF64(x float64) float64 {
+	return x
+}
+
+func square(x float64) float64 {
+	return x * x
+}
+
+func logRms(floor float64) FuncF64 {
+	return func(x float64) float64 {
+		return math.Max(math.Log10(math.Sqrt(x)), floor)
+	}
+}
+
+func plotWave(wf *wavio.File) error {
+	var plot *Plot
+	var width, height int
+
 	winsize, err := GetWinsize()
 	if err != nil {
 		winsize = &Winsize{24, 80, 0, 0}
 	}
+	gfxPlot := useKitty && winsize.Xres > 0 && winsize.Yres > 0
+	if gfxPlot {
+		width, height = int(winsize.Xres), int(winsize.Yres)/4
+	} else {
+		width, height = int(winsize.Cols)-16, int(winsize.Rows)-3
+	}
 
-	if (useKitty && winsize.Xres > 0 && winsize.Yres > 0) {
-		plot, err := WavPlot(wf, int(winsize.Xres), int(winsize.Yres)/4)
-		if err != nil {
-			return err
-		}
+	x, err := wf.ToFloat64(sampleRange(wf, nFlag))
+	if err != nil {
+		return err
+	}
+
+	if sFlag < 0 {
+		plot = PlotFunc(x, square, logRms(sFlag), width, height)
+	} else if rFlag {
+		plot = PlotFunc(x, square, math.Sqrt, width, height)
+	} else {
+		plot = PlotFunc(x, idF64, idF64, width, height)
+	}
+
+	if gfxPlot {
 		plot.RenderKitty()
 	} else {
-		plot, err := WavPlot(wf, int(winsize.Cols)-16, int(winsize.Rows)-3)
-		if err != nil {
-			return err
-		}
 		plot.RenderASCII(os.Stdout)
 	}
+
 	return nil
 }
 
-func WavPlot(wf *wavio.File, W int, H int) (*Plot, error) {
-	first, last := sampleRange(wf, nFlag)
-	N := last - first
-	x, err := wf.ToFloat64(first, last)
-	if err != nil {
-		return nil, err
-	}
+func PlotFunc(x []float64, f, g FuncF64, W, H int) *Plot {
+	N := len(x)
 
 	// resample to fit screen
 	y := make([]float64, W)
@@ -53,33 +79,17 @@ func WavPlot(wf *wavio.File, W int, H int) (*Plot, error) {
 	j := 0
 	t := 0.0
 	for _, xn := range x {
-		if sFlag || rFlag {
-			t += xn * xn
-		} else {
-			t += xn
-		}
+		t += f(xn)
 		j++
 		if j == M {
-			if sFlag {
-				y[i] = math.Max(10 * math.Log10(math.Sqrt(t / float64(M))), -40)
-			} else if rFlag {
-				y[i] = math.Sqrt(t / float64(M))
-			} else {
-				y[i] = t / float64(M)
-			}
+			y[i] = g(t / float64(M))
 			i++
 			j = 0
 			t = 0.0
 		}
 	}
 	if j > 0 {
-		if sFlag {
-			y[i] = math.Max(10 * math.Log10(math.Sqrt(t / float64(j))), -40)
-		} else if rFlag {
-			y[i] = math.Sqrt(t / float64(j))
-		} else {
-			y[i] = t / float64(j)
-		}
+		y[i] = g(t / float64(j))
 	}
 	actualW := i
 
@@ -89,23 +99,23 @@ func WavPlot(wf *wavio.File, W int, H int) (*Plot, error) {
 	for n, yn := range y {
 		data[n] = H - 1 - int((yn-ymin)/(ymax-ymin)*float64(H-1))
 	}
-	return &Plot{data, ymin, ymax, actualW, H, N}, nil
+	return &Plot{data, ymin, ymax, actualW, H, N}
 }
 
 func (plot *Plot) RenderKitty() {
 	pixoff := 2
 	pixwidth := plot.W + pixoff
-	pixbuf := make([]byte, 3 * pixwidth * plot.H)
+	pixbuf := make([]byte, 3*pixwidth*plot.H)
 
 	for i := 0; i < plot.H; i++ {
 		for j := 0; j < min(plot.W, plot.N); j++ {
-			if rFlag || sFlag {
+			if rFlag || sFlag < 0 {
 				if plot.data[j] <= i {
-					pixbuf[(i*pixwidth + pixoff + j)*3 + 2] = 255;
+					pixbuf[(i*pixwidth+pixoff+j)*3+2] = 255
 				}
 			} else {
 				if plot.data[j] == i {
-					pixbuf[(i*pixwidth + pixoff + j)*3 + 1] = 255;
+					pixbuf[(i*pixwidth+pixoff+j)*3+1] = 255
 				}
 			}
 		}
@@ -121,11 +131,7 @@ func (plot *Plot) RenderASCII(outf *os.File) {
 		} else if i == plot.H-1 {
 			fmt.Fprintf(outf, "\n%11.4e |", plot.ymin)
 		} else {
-			if sFlag && i == plot.H / 2 {
-				fmt.Fprintf(outf, "\n     dB     |")
-			} else {
-				fmt.Fprintf(outf, "\n            |")
-			}
+			fmt.Fprintf(outf, "\n            |")
 		}
 		for j := 0; j < min(plot.W, plot.N); j++ {
 			if plot.data[j] == i {
@@ -136,10 +142,6 @@ func (plot *Plot) RenderASCII(outf *os.File) {
 		}
 	}
 	fmt.Fprintln(outf)
-}
-
-func clamp(x float64, mn float64, mx float64) float64 {
-	return math.Min(math.Max(x, mn), mx)
 }
 
 func minmax(xs []float64) (min float64, max float64) {
