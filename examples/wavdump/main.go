@@ -58,9 +58,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	// print header
-	// fmt.Print(wf)
-	fmt.Println(wf.Summary())
+	// print summary
+	printSummary(wf)
 
 	// print some samples
 	if (nFlag != "" && !pFlag) || fFlag || lFlag {
@@ -79,6 +78,17 @@ func main() {
 			os.Exit(1)
 		}
 	}
+}
+
+func printSummary(wf *wavio.File) {
+	summary := wf.Summary()
+	first, last := sampleRange(wf, nFlag)
+	selection := fmt.Sprintf(" [%d:%d]", first, last)
+	fmt.Print(summary)
+	if getTermWidth() > len(summary) + len(selection) {
+		fmt.Print(selection)
+	}
+	fmt.Println()
 }
 
 // parse string to get slice start and end values
@@ -114,4 +124,12 @@ func min(a int, b int) int {
 		return a
 	}
 	return b
+}
+
+func getTermWidth() int {
+	winsize, err := GetWinsize()
+	if err != nil {
+		return 80
+	}
+	return int(winsize.Cols)
 }
