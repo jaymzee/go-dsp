@@ -38,11 +38,11 @@ func NewFile(format Format, channels uint16, sampleRate uint32,
 func (wf *File) String() string {
 	b := &strings.Builder{}
 	fmt.Fprintf(b, "format:      %s\n", wf.Format)
+	fmt.Fprintf(b, "bits/sample: %d\n", wf.BitsPerSample)
 	fmt.Fprintf(b, "channels:    %d\n", wf.Channels)
 	fmt.Fprintf(b, "sample rate: %d\n", wf.SampleRate)
 	fmt.Fprintf(b, "byte rate:   %d\n", wf.ByteRate)
 	fmt.Fprintf(b, "block align: %d\n", wf.BlockAlign)
-	fmt.Fprintf(b, "bits/sample: %d\n", wf.BitsPerSample)
 	fmt.Fprintf(b, "data size:   %d\n", len(wf.Data))
 	return b.String()
 }
@@ -52,8 +52,8 @@ func (wf *File) String() string {
 func (wf *File) Summary() string {
 	b := &strings.Builder{}
 	fmt.Fprintf(b, "fmt %s ", wf.Format)
-	fmt.Fprintf(b, "%d ch ", wf.Channels)
 	fmt.Fprintf(b, "%d-bit ", wf.BitsPerSample)
+	fmt.Fprintf(b, "%d ch ", wf.Channels)
 	fmt.Fprintf(b, "%d Hz ", wf.SampleRate)
 	fmt.Fprintf(b, "%d Bps ", wf.ByteRate)
 	fmt.Fprintf(b, "%d align ", wf.BlockAlign)
