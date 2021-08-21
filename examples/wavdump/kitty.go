@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/base64"
+	"fmt"
 	"os"
 )
 
@@ -28,8 +29,9 @@ func writeChunked(cmd string, data []byte) {
 	}
 }
 
-func writeImage(data []byte) {
-	encdata := make([]byte, len(data))
-	base64.StdEncoding.Encode(encdata, data)
-	writeChunked("a=T,f=24", encdata)
+func writeImage(width, height int, data []byte) {
+	enc := base64.StdEncoding
+	encoded := make([]byte, enc.EncodedLen(len(data)))
+	enc.Encode(encoded, data)
+	writeChunked(fmt.Sprintf("a=T,f=24,s=%d,v=%d", width, height), encoded)
 }

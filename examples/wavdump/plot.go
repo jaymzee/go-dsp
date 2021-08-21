@@ -22,12 +22,19 @@ func plotSamples(wf *wavio.File) error {
 		winsize = &Winsize{24, 80, 0, 0}
 	}
 
-	plot, err := WavPlot(wf, int(winsize.Cols)-16, int(winsize.Rows)-3)
-	if err != nil {
-		return err
+	if (useKitty && winsize.Xres > 0 && winsize.Yres > 0) {
+		plot, err := WavPlot(wf, int(winsize.Xres), int(winsize.Yres)/4)
+		if err != nil {
+			return err
+		}
+		plot.RenderKitty()
+	} else {
+		plot, err := WavPlot(wf, int(winsize.Cols)-16, int(winsize.Rows)-3)
+		if err != nil {
+			return err
+		}
+		plot.RenderASCII(os.Stdout)
 	}
-
-	plot.RenderASCII(os.Stdout)
 	return nil
 }
 
@@ -66,6 +73,22 @@ func WavPlot(wf *wavio.File, W int, H int) (*Plot, error) {
 		data[n] = H - 1 - int((yn-ymin)/(ymax-ymin)*float64(H-1))
 	}
 	return &Plot{data, ymin, ymax, actualW, H, N}, nil
+}
+
+func (plot *Plot) RenderKitty() {
+	pixoff := 2
+	pixwidth := plot.W + pixoff
+	pixbuf := make([]byte, 3 * pixwidth * plot.H)
+
+	for i := 0; i < plot.H; i++ {
+		for j := 0; j < min(plot.W, plot.N); j++ {
+			if plot.data[j] == i {
+				pixbuf[(i*pixwidth + pixoff + j)*3 + 1] = 255;
+			}
+		}
+	}
+	writeImage(pixwidth, plot.H, pixbuf)
+	fmt.Println()
 }
 
 func (plot *Plot) RenderASCII(outf *os.File) {
