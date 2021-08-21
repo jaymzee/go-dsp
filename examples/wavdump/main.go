@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jaymzee/go-dsp/wavio"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -12,9 +13,15 @@ var (
 	fFlag    bool
 	lFlag    bool
 	tFlag    bool
-	nFlag    int
+	nFlag    string
 	useKitty bool
 )
+
+const nFlagHelp = `range of samples to print/plot
+examples:
+    100		first 100 samples
+    50:100	50th thru 100th sample
+    100:	from 100th sample to the end of the file`
 
 func init() {
 	useKitty = strings.Contains(os.Getenv("TERM"), "kitty") && isatty()
@@ -26,7 +33,7 @@ func init() {
 	flag.BoolVar(&fFlag, "f", false, "print samples as floating point")
 	flag.BoolVar(&lFlag, "l", false,
 		"print samples on one line (no pretty print)")
-	flag.IntVar(&nFlag, "n", 0, "number of samples to print/plot")
+	flag.StringVar(&nFlag, "n", "", nFlagHelp)
 	if useKitty {
 		flag.BoolVar(&tFlag, "t", false, "plot samples in terminal")
 	} else {
@@ -56,7 +63,7 @@ func main() {
 	fmt.Println(wf.Summary())
 
 	// print some samples
-	if (nFlag > 0 && !tFlag) || fFlag || lFlag {
+	if (nFlag != "" && !tFlag) || fFlag || lFlag {
 		err := printSamples(wf)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "\x1b[1;31mdata:\x1b[0m %s\n", err)
@@ -74,16 +81,25 @@ func main() {
 	}
 }
 
-// samples is -n flag bounded by the actual number of samples available
-func samples(wf *wavio.File) int {
-	var count int
-	if nFlag > 0 {
-		count = min(nFlag, wf.Samples())
-	} else {
-		// default to selecting all of the samples
-		count = wf.Samples()
+// parse string to get slice start and end values
+// values are bounded by the actual number of samples available
+func sampleRange(wf *wavio.File, str string) (int, int) {
+	start := 0
+	end := 0
+	s := strings.Split(str, ":")
+	if len(s) > 1 {
+		start, _ = strconv.Atoi(s[0])
 	}
-	return count
+	if len(s) > 0 {
+		end, _ = strconv.Atoi(s[len(s)-1])
+	}
+	if end > 0 {
+		end = min(end, wf.Samples())
+	} else {
+		end = wf.Samples()
+	}
+	start = min(start, end)
+	return start, end
 }
 
 func max(a int, b int) int {

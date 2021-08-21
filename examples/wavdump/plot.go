@@ -39,8 +39,9 @@ func plotSamples(wf *wavio.File) error {
 }
 
 func WavPlot(wf *wavio.File, W int, H int) (*Plot, error) {
-	N := samples(wf)
-	x, err := wf.ToFloat64(0, N)
+	first, last := sampleRange(wf, nFlag)
+	N := last - first
+	x, err := wf.ToFloat64(first, last)
 	if err != nil {
 		return nil, err
 	}
