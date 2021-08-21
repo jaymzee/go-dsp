@@ -61,7 +61,7 @@ func WavPlot(wf *wavio.File, W int, H int) (*Plot, error) {
 		j++
 		if j == M {
 			if sFlag {
-				y[i] = clamp(10 * math.Log10(math.Sqrt(t / float64(M))), -90, 0)
+				y[i] = math.Max(10 * math.Log10(math.Sqrt(t / float64(M))), -40)
 			} else if rFlag {
 				y[i] = math.Sqrt(t / float64(M))
 			} else {
@@ -74,7 +74,7 @@ func WavPlot(wf *wavio.File, W int, H int) (*Plot, error) {
 	}
 	if j > 0 {
 		if sFlag {
-			y[i] = clamp(10 * math.Log10(math.Sqrt(t / float64(j))), -90, 0)
+			y[i] = math.Max(10 * math.Log10(math.Sqrt(t / float64(j))), -40)
 		} else if rFlag {
 			y[i] = math.Sqrt(t / float64(j))
 		} else {
