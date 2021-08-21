@@ -12,7 +12,9 @@ import (
 var (
 	fFlag    bool
 	lFlag    bool
-	tFlag    bool
+	pFlag    bool
+	rFlag    bool
+	sFlag    bool
 	nFlag    string
 	useKitty bool
 )
@@ -34,11 +36,9 @@ func init() {
 	flag.BoolVar(&lFlag, "l", false,
 		"print samples on one line (no pretty print)")
 	flag.StringVar(&nFlag, "n", "", nFlagHelp)
-	if useKitty {
-		flag.BoolVar(&tFlag, "t", false, "plot samples in terminal")
-	} else {
-		flag.BoolVar(&tFlag, "t", false, "plot samples to stdout")
-	}
+	flag.BoolVar(&pFlag, "p", false, "plot samples")
+	flag.BoolVar(&rFlag, "r", false, "RMS plot option")
+	flag.BoolVar(&sFlag, "s", false, "Log RMS plot option")
 }
 
 func main() {
@@ -63,7 +63,7 @@ func main() {
 	fmt.Println(wf.Summary())
 
 	// print some samples
-	if (nFlag != "" && !tFlag) || fFlag || lFlag {
+	if (nFlag != "" && !pFlag) || fFlag || lFlag {
 		err := printSamples(wf)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "\x1b[1;31mdata:\x1b[0m %s\n", err)
@@ -72,7 +72,7 @@ func main() {
 	}
 
 	// plot some samples
-	if tFlag {
+	if pFlag {
 		err := plotSamples(wf)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "\x1b[1;31mplot:\x1b[0m %s\n", err)
