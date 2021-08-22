@@ -9,9 +9,9 @@ import (
 type FuncF64 func(float64) float64
 
 type Plot struct {
-	data []int
-	ymin float64
-	ymax float64
+	Data []int
+	Ymin float64
+	Ymax float64
 	W    int
 	H    int
 	N    int
@@ -59,8 +59,8 @@ func (plt *Plot) RenderKitty() {
 
 	for i := 0; i < plt.H; i++ {
 		for j := 0; j < min(plt.W, plt.N); j++ {
-			y := plt.data[j]
-			if i == y && plt.Dots || i <= y {
+			y := plt.Data[j]
+			if (plt.Dots && i == y) || (!plt.Dots && i >= y) {
 				pixbuf[(i*pixwidth+pixoff+j)*3] = byte(plt.LineColor >> 24)
 				pixbuf[(i*pixwidth+pixoff+j)*3+1] = byte(plt.LineColor >> 16)
 				pixbuf[(i*pixwidth+pixoff+j)*3+2] = byte(plt.LineColor >> 8)
@@ -74,14 +74,14 @@ func (plt *Plot) RenderKitty() {
 func (plt *Plot) RenderASCII(outf *os.File) {
 	for i := 0; i < plt.H; i++ {
 		if i == 0 {
-			fmt.Fprintf(outf, "\n%11.4e |", plt.ymax)
+			fmt.Fprintf(outf, "\n%11.3e |", plt.Ymax)
 		} else if i == plt.H-1 {
-			fmt.Fprintf(outf, "\n%11.4e |", plt.ymin)
+			fmt.Fprintf(outf, "\n%11.3e |", plt.Ymin)
 		} else {
 			fmt.Fprintf(outf, "\n            |")
 		}
 		for j := 0; j < min(plt.W, plt.N); j++ {
-			if plt.data[j] == i {
+			if plt.Data[j] == i {
 				fmt.Fprint(outf, "*")
 			} else {
 				fmt.Fprint(outf, " ")

@@ -45,12 +45,17 @@ func main() {
 	// parse program arguments
 	flag.Parse()
 	args := flag.Args()
-	if len(args) != 1 {
+	if len(args) < 1 {
 		flag.Usage()
-		os.Exit(1)
+		os.Exit(2)
 	}
-	filename := args[0]
 
+	for _, filename := range args {
+		dumpFile(filename)
+	}
+}
+
+func dumpFile(filename string) {
 	// read wav file
 	wf, err := wavio.ReadFile(filename)
 	if err != nil {
@@ -60,7 +65,7 @@ func main() {
 
 	// print summary
 	first, last := sampleRange(wf, nFlag)
-	head := fmt.Sprintf("%s [%d:%d]", wf.Summary(), first, last)
+	head := fmt.Sprintf("%s: %s [%d:%d]", filename, wf.Summary(), first, last)
 	if len(head) < getTermWidth() {
 		fmt.Println(head)
 	} else {

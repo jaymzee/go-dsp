@@ -5,6 +5,7 @@ import (
 	"github.com/jaymzee/go-dsp/wavio"
 	"math"
 	"os"
+	"fmt"
 )
 
 func idF64(x float64) float64 {
@@ -31,7 +32,9 @@ func plotWave(wf *wavio.File) error {
 	}
 	gfxPlot := useKitty && winsize.Xres > 0 && winsize.Yres > 0
 	if gfxPlot {
-		width, height = int(winsize.Xres), int(winsize.Yres)/4
+		charHeight := winsize.Yres / winsize.Rows
+		charWidth := winsize.Xres / winsize.Cols
+		width, height = int((winsize.Cols - 12) * charWidth), int(charHeight * 10)
 	} else {
 		width, height = int(winsize.Cols)-16, int(winsize.Rows)-3
 	}
@@ -42,7 +45,7 @@ func plotWave(wf *wavio.File) error {
 	}
 
 	if sFlag < 0 {
-		plt = plot.PlotFunc(x, square, logRms(-40), width, height)
+		plt = plot.PlotFunc(x, square, logRms(sFlag), width, height)
 		plt.LineColor = 0x0000ffff
 		plt.Dots = false
 	} else if rFlag {
@@ -56,7 +59,9 @@ func plotWave(wf *wavio.File) error {
 	}
 
 	if gfxPlot {
+		fmt.Printf("%11.3e", plt.Ymax)
 		plt.RenderKitty()
+		fmt.Printf("\033[A%11.3e\n", plt.Ymin)
 	} else {
 		plt.RenderASCII(os.Stdout)
 	}
