@@ -34,7 +34,7 @@ func plotWave(wf *wavio.File) error {
 	if gfxPlot {
 		charHeight := winsize.Yres / winsize.Rows
 		charWidth := winsize.Xres / winsize.Cols
-		width, height = int((winsize.Cols - 12) * charWidth), int(charHeight * 10)
+		width, height = int((winsize.Cols - 13) * charWidth), int(charHeight * 10)
 	} else {
 		width, height = int(winsize.Cols)-16, int(winsize.Rows)-3
 	}
