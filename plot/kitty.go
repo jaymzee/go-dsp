@@ -1,4 +1,4 @@
-package main
+package plot
 
 import (
 	"encoding/base64"
@@ -29,9 +29,9 @@ func writeChunked(cmd string, data []byte) {
 	}
 }
 
-func writeImage(width, height int, data []byte) {
+func WriteKitty(head string, data []byte, width, height int) {
 	enc := base64.StdEncoding
 	encoded := make([]byte, enc.EncodedLen(len(data)))
 	enc.Encode(encoded, data)
-	writeChunked(fmt.Sprintf("a=T,f=24,s=%d,v=%d", width, height), encoded)
+	writeChunked(fmt.Sprintf("%s,s=%d,v=%d", head, width, height), encoded)
 }
