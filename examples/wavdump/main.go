@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	eFlag    bool
 	fFlag    bool
 	lFlag    bool
 	pFlag    bool
@@ -32,7 +33,8 @@ func init() {
 		fmt.Fprintf(os.Stderr, "options:\n")
 		flag.PrintDefaults()
 	}
-	flag.BoolVar(&fFlag, "f", false, "print samples as floating point")
+	flag.BoolVar(&eFlag, "e", false, "print samples as floating point")
+	flag.BoolVar(&fFlag, "f", false, "plot FFT")
 	flag.BoolVar(&lFlag, "l", false,
 		"print samples on one line (no pretty print)")
 	flag.StringVar(&nFlag, "n", "", nFlagHelp)
@@ -73,7 +75,7 @@ func dumpFile(filename string) {
 	}
 
 	// print some samples
-	if (nFlag != "" && !pFlag) || fFlag || lFlag {
+	if (nFlag != "" && !pFlag) || eFlag || lFlag {
 		err := printSamples(wf)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "\x1b[1;31mdata:\x1b[0m %s\n", err)

@@ -3,7 +3,9 @@ package main
 import (
 	"github.com/jaymzee/go-dsp/plot"
 	"github.com/jaymzee/go-dsp/wavio"
+	"github.com/jaymzee/go-dsp/fft"
 	"math"
+	"math/cmplx"
 	"os"
 	"fmt"
 )
@@ -42,6 +44,16 @@ func plotWave(wf *wavio.File) error {
 	x, err := wf.ToFloat64(sampleRange(wf, nFlag))
 	if err != nil {
 		return err
+	}
+	if fFlag {
+		xx := make([]complex128, len(x))
+		for n, xn := range x {
+			xx[n] = complex(xn, 0)
+		}
+		fft.IterativeFFT(xx, 1)
+		for n, xn := range xx {
+			x[n] = cmplx.Abs(xn)
+		}
 	}
 
 	if sFlag < 0 {

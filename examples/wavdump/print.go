@@ -12,7 +12,7 @@ func printSamples(wf *wavio.File) error {
 	)
 	first, last := sampleRange(wf, nFlag)
 	pretty := !lFlag
-	if wf.Format == wavio.PCM && !fFlag {
+	if wf.Format == wavio.PCM && !eFlag {
 		// convert wav file samples to int16
 		x, err := wf.ToInt16(first, last)
 		if err != nil {
