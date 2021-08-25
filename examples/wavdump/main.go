@@ -17,7 +17,7 @@ var (
 	rFlag    bool
 	sFlag    float64
 	nFlag    string
-	useKitty bool
+	terminal string
 )
 
 const nFlagHelp = `range of samples to print/plot
@@ -27,7 +27,15 @@ examples:
     100:	from 100th sample to the end of the file`
 
 func init() {
-	useKitty = strings.Contains(os.Getenv("TERM"), "kitty") && isatty()
+	if !strings.Contains(os.Getenv("WAVDUMP"), "nogfx") && isatty() {
+		if strings.Contains(os.Getenv("TERM"), "kitty") {
+			terminal = "kitty"
+		}
+		if strings.Contains(os.Getenv("WAVDUMP"), "iTerm") {
+			terminal = "iTerm"
+		}
+	}
+	fmt.Println("Terminal:", terminal)
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [options] wavfile\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "options:\n")

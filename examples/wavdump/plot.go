@@ -34,7 +34,7 @@ func plotWave(wf *wavio.File) error {
 	if err != nil {
 		winsize = &Winsize{24, 80, 0, 0}
 	}
-	gfxPlot := useKitty && winsize.Xres > 0 && winsize.Yres > 0
+	gfxPlot := terminal=="kitty" && winsize.Xres > 0 && winsize.Yres > 0
 	if gfxPlot {
 		charHeight := winsize.Yres / winsize.Rows
 		charWidth := winsize.Xres / winsize.Cols
