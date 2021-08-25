@@ -2,6 +2,8 @@ package plot
 
 import (
 	"fmt"
+	"image"
+	"image/color"
 	"math"
 	"os"
 )
@@ -9,14 +11,14 @@ import (
 type FuncF64 func(float64) float64
 
 type Plot struct {
-	Data []int
-	Ymin float64
-	Ymax float64
-	W    int
-	H    int
-	N    int
+	Data      []int
+	Ymin      float64
+	Ymax      float64
+	W         int
+	H         int
+	N         int
 	LineColor uint32
-	Dots bool
+	Dots      bool
 }
 
 func PlotFunc(x []float64, f, g FuncF64, W, H int) *Plot {
@@ -52,26 +54,32 @@ func PlotFunc(x []float64, f, g FuncF64, W, H int) *Plot {
 	return &Plot{data, ymin, ymax, actualW, H, N, 0x00ff00ff, true}
 }
 
-func (plt *Plot) RenderKitty() {
-	pixoff := 2
-	pixwidth := plt.W + pixoff
-	pixbuf := make([]byte, 3*pixwidth*plt.H)
-
+func (plt *Plot) RenderImage() *image.Paletted {
+	offset := 2
+	imgwidth := plt.W + offset
+	rect := image.Rect(0, 0, imgwidth, plt.H)
+	palette := color.Palette([]color.Color{
+		color.RGBA{0, 0, 0, 255},
+		color.RGBA{
+			uint8(plt.LineColor >> 24),
+			uint8(plt.LineColor >> 16),
+			uint8(plt.LineColor >> 8),
+			uint8(plt.LineColor),
+		},
+	})
+	img := image.NewPaletted(rect, palette)
 	for i := 0; i < plt.H; i++ {
 		for j := 0; j < min(plt.W, plt.N); j++ {
 			y := plt.Data[j]
 			if (plt.Dots && i == y) || (!plt.Dots && i >= y) {
-				pixbuf[(i*pixwidth+pixoff+j)*3] = byte(plt.LineColor >> 24)
-				pixbuf[(i*pixwidth+pixoff+j)*3+1] = byte(plt.LineColor >> 16)
-				pixbuf[(i*pixwidth+pixoff+j)*3+2] = byte(plt.LineColor >> 8)
+				img.Pix[i*imgwidth+offset+j] = 1
 			}
 		}
 	}
-	WriteKitty("a=T,f=24", pixbuf, pixwidth, plt.H)
-	fmt.Println()
+	return img
 }
 
-func (plt *Plot) RenderASCII(outf *os.File) {
+func (plt *Plot) RenderAscii(outf *os.File) {
 	for i := 0; i < plt.H; i++ {
 		if i == 0 {
 			fmt.Fprintf(outf, "\n%11.3e |", plt.Ymax)

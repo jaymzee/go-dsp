@@ -29,9 +29,18 @@ func writeChunked(cmd string, data []byte) {
 	}
 }
 
-func WriteKitty(head string, data []byte, width, height int) {
+func WriteKitty(head string, data []byte) {
 	enc := base64.StdEncoding
 	encoded := make([]byte, enc.EncodedLen(len(data)))
 	enc.Encode(encoded, data)
-	writeChunked(fmt.Sprintf("%s,s=%d,v=%d", head, width, height), encoded)
+	writeChunked(head, encoded)
+}
+
+func WriteITerm(data []byte) {
+	enc := base64.StdEncoding
+	encoded := make([]byte, enc.EncodedLen(len(data)))
+	enc.Encode(encoded, data)
+	fmt.Printf("\033]1337;size=%v;inline=1:", len(data))
+	os.Stdout.Write(encoded)
+	os.Stdout.Write([]byte{0x07})
 }

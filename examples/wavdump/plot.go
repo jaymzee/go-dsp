@@ -1,13 +1,15 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
+	"github.com/jaymzee/go-dsp/fft"
 	"github.com/jaymzee/go-dsp/plot"
 	"github.com/jaymzee/go-dsp/wavio"
-	"github.com/jaymzee/go-dsp/fft"
+	"image/png"
 	"math"
 	"math/cmplx"
 	"os"
-	"fmt"
 )
 
 func idF64(x float64) float64 {
@@ -36,7 +38,7 @@ func plotWave(wf *wavio.File) error {
 	if gfxPlot {
 		charHeight := winsize.Yres / winsize.Rows
 		charWidth := winsize.Xres / winsize.Cols
-		width, height = int((winsize.Cols - 13) * charWidth), int(charHeight * 10)
+		width, height = int((winsize.Cols-13)*charWidth), int(charHeight*10)
 	} else {
 		width, height = int(winsize.Cols)-16, int(winsize.Rows)-3
 	}
@@ -71,12 +73,23 @@ func plotWave(wf *wavio.File) error {
 	}
 
 	if gfxPlot {
-		fmt.Printf("%11.3e", plt.Ymax)
-		plt.RenderKitty()
-		fmt.Printf("\033[A%11.3e\n", plt.Ymin)
+		GraphicsPlot(plt)
 	} else {
-		plt.RenderASCII(os.Stdout)
+		plt.RenderAscii(os.Stdout)
 	}
 
 	return nil
+}
+
+func GraphicsPlot(plt *plot.Plot) {
+	fmt.Printf("%11.3e", plt.Ymax)
+	img := plt.RenderImage()
+	buf := new(bytes.Buffer)
+	enc := png.Encoder{CompressionLevel: png.BestSpeed}
+	err := enc.Encode(buf, img)
+	if err != nil {
+		panic(err)
+	}
+	plot.WriteKitty("a=T,f=100", buf.Bytes())
+	fmt.Printf("\n\033[A%11.3e\n", plt.Ymin)
 }
