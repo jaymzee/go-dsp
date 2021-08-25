@@ -34,11 +34,12 @@ func plotWave(wf *wavio.File) error {
 	if err != nil {
 		winsize = &Winsize{24, 80, 0, 0}
 	}
-	gfxPlot := terminal=="kitty" && winsize.Xres > 0 && winsize.Yres > 0
-	if gfxPlot {
+	if terminal=="kitty" {
 		charHeight := winsize.Yres / winsize.Rows
 		charWidth := winsize.Xres / winsize.Cols
 		width, height = int((winsize.Cols-13)*charWidth), int(charHeight*10)
+	} else if terminal=="iTerm" {
+		width, height = 600, 200
 	} else {
 		width, height = int(winsize.Cols)-16, int(winsize.Rows)-3
 	}
@@ -72,7 +73,7 @@ func plotWave(wf *wavio.File) error {
 		plt.Dots = true
 	}
 
-	if gfxPlot {
+	if terminal == "kitty" || terminal == "iTerm" {
 		GraphicsPlot(plt)
 	} else {
 		plt.RenderAscii(os.Stdout)
@@ -90,6 +91,10 @@ func GraphicsPlot(plt *plot.Plot) {
 	if err != nil {
 		panic(err)
 	}
-	plot.WriteKitty("a=T,f=100", buf.Bytes())
+	if terminal == "kitty" {
+		plot.WriteKitty("a=T,f=100", buf.Bytes())
+	} else {
+		plot.WriteITerm(buf.Bytes())
+	}
 	fmt.Printf("\n\033[A%11.3e\n", plt.Ymin)
 }

@@ -27,15 +27,14 @@ examples:
     100:	from 100th sample to the end of the file`
 
 func init() {
-	if !strings.Contains(os.Getenv("WAVDUMP"), "nogfx") && isatty() {
-		if strings.Contains(os.Getenv("TERM"), "kitty") {
+	if !strings.Contains(os.Getenv("WAVDUMP"), "nogfx") {
+		if strings.Contains(os.Getenv("TERM"), "kitty") && isatty() {
 			terminal = "kitty"
 		}
 		if strings.Contains(os.Getenv("WAVDUMP"), "iTerm") {
 			terminal = "iTerm"
 		}
 	}
-	fmt.Println("Terminal:", terminal)
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [options] wavfile\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "options:\n")
