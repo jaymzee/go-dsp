@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/jaymzee/go-dsp/filter"
+	"github.com/jaymzee/go-dsp/signal/filter"
 	"github.com/jaymzee/go-dsp/wavio"
 	"os"
 	"strconv"
