@@ -10,12 +10,7 @@ import (
 	"github.com/jaymzee/img/term/kitty"
 	"image/png"
 	"math"
-	"math/cmplx"
 )
-
-func idF64(x float64) float64 {
-	return x
-}
 
 func square(x float64) float64 {
 	return x * x
@@ -35,12 +30,15 @@ func plotWave(wf *wavio.File) error {
 	if err != nil {
 		winsize = &Winsize{24, 80, 0, 0}
 	}
-	if terminal == "kitty" {
+	if winsize.Xres <= 0 {
+		winsize.Xres = 800
+		winsize.Yres = 200
+	}
+
+	if terminal == "kitty" || terminal == "iTerm" {
 		charHeight := winsize.Yres / winsize.Rows
 		charWidth := winsize.Xres / winsize.Cols
 		width, height = int((winsize.Cols-13)*charWidth), int(charHeight*10)
-	} else if terminal == "iTerm" {
-		width, height = 800, 200
 	} else {
 		width, height = int(winsize.Cols)-16, int(winsize.Rows)-3
 	}
@@ -50,32 +48,27 @@ func plotWave(wf *wavio.File) error {
 		return err
 	}
 	if fFlag {
-		xx := make([]complex128, len(x))
-		for n, xn := range x {
-			xx[n] = complex(xn, 0)
-		}
-		fft.IterativeFFT(xx, 1)
-		for n, xn := range xx {
-			x[n] = cmplx.Abs(xn)
-		}
+		X := fft.Complex(x)
+		fft.IterativeFFT(X, 1)
+		x = fft.Abs(X)
 	}
 
 	if sFlag < 0 {
-		plt = plot.PlotFunc(x, square, logRms(sFlag), width, height)
+		plt = plot.PlotFunc(x, logRms(sFlag), square, width, height)
 		plt.LineColor = 0x0000ffff
 		plt.Dots = false
 	} else if rFlag {
-		plt = plot.PlotFunc(x, square, math.Sqrt, width, height)
+		plt = plot.PlotFunc(x, math.Sqrt, square, width, height)
 		plt.LineColor = 0x0000ffff
 		plt.Dots = false
 	} else {
-		plt = plot.PlotFunc(x, idF64, idF64, width, height)
+		plt = plot.PlotFunc(x, plot.Id, plot.Id, width, height)
 		plt.LineColor = 0x00ff00ff
 		plt.Dots = true
 	}
 
 	if terminal == "kitty" || terminal == "iTerm" {
-		GraphicsPlot(plt)
+		RenderPlot(plt)
 	} else {
 		fmt.Print(plt.RenderAscii())
 	}
@@ -83,7 +76,7 @@ func plotWave(wf *wavio.File) error {
 	return nil
 }
 
-func GraphicsPlot(plt *plot.Plot) {
+func RenderPlot(plt *plot.Plot) {
 	fmt.Printf("%11.3e", plt.Ymax)
 	img := plt.RenderImage()
 	buf := new(bytes.Buffer)

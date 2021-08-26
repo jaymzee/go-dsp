@@ -88,3 +88,30 @@ func IFFT(X []complex128) []complex128 {
 	IterativeFFT(x, 1)
 	return x
 }
+
+// convenience function to convert reals to complex
+func Complex(x []float64) []complex128 {
+	y := make([]complex128, len(x))
+	for n, xn := range x {
+		y[n] = complex(xn, 0.0)
+	}
+	return y
+}
+
+// convenience function to convert complex to reals
+func Abs(x []complex128) []float64 {
+	y := make([]float64, len(x))
+	for n, xn := range x {
+		y[n] = cmplx.Abs(xn)
+	}
+	return y
+}
+
+// convenience function to convert complex to reals
+func Phase(x []complex128) []float64 {
+	y := make([]float64, len(x))
+	for n, xn := range x {
+		y[n] = cmplx.Phase(xn)
+	}
+	return y
+}
