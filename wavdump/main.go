@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/jaymzee/go-dsp/wavio"
+	"github.com/jaymzee/img/term"
 	"os"
 	"strconv"
 	"strings"
@@ -28,7 +29,7 @@ examples:
 
 func init() {
 	if !strings.Contains(os.Getenv("WAVDUMP"), "nogfx") {
-		if strings.Contains(os.Getenv("TERM"), "kitty") && isatty() {
+		if strings.Contains(os.Getenv("TERM"), "kitty") && term.Isatty() {
 			terminal = "kitty"
 		}
 		if strings.Contains(os.Getenv("WAVDUMP"), "iTerm") {
@@ -134,7 +135,7 @@ func min(a int, b int) int {
 }
 
 func getTermWidth() int {
-	winsize, err := GetWinsize()
+	winsize, err := term.GetWinsize()
 	if err != nil {
 		return 80
 	}

@@ -1,14 +1,13 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/jaymzee/go-dsp/fft"
 	"github.com/jaymzee/go-dsp/wavio"
 	"github.com/jaymzee/img/plot"
+	"github.com/jaymzee/img/term"
 	"github.com/jaymzee/img/term/iTerm2"
 	"github.com/jaymzee/img/term/kitty"
-	"image/png"
 	"math"
 )
 
@@ -26,9 +25,9 @@ func plotWave(wf *wavio.File) error {
 	var plt *plot.Plot
 	var width, height int
 
-	winsize, err := GetWinsize()
+	winsize, err := term.GetWinsize()
 	if err != nil {
-		winsize = &Winsize{24, 80, 0, 0}
+		winsize = &term.Winsize{24, 80, 0, 0}
 	}
 	if winsize.Xres <= 0 {
 		winsize.Xres = 800
@@ -68,7 +67,7 @@ func plotWave(wf *wavio.File) error {
 	}
 
 	if terminal == "kitty" || terminal == "iTerm" {
-		RenderPlot(plt)
+		Plot(plt.RenderPng(), plt.Ymin, plt.Ymax)
 	} else {
 		fmt.Print(plt.RenderAscii())
 	}
@@ -76,19 +75,12 @@ func plotWave(wf *wavio.File) error {
 	return nil
 }
 
-func RenderPlot(plt *plot.Plot) {
-	fmt.Printf("%11.3e", plt.Ymax)
-	img := plt.RenderImage()
-	buf := new(bytes.Buffer)
-	enc := png.Encoder{CompressionLevel: png.BestSpeed}
-	err := enc.Encode(buf, img)
-	if err != nil {
-		panic(err)
-	}
+func Plot(buf []byte, min, max float64) {
+	fmt.Printf("%11.3e", max)
 	if terminal == "kitty" {
-		kitty.WriteImage("a=T,f=100", buf.Bytes())
+		kitty.WriteImage("a=T,f=100", buf)
 	} else {
-		iTerm2.WriteImage(buf.Bytes())
+		iTerm2.WriteImage(buf)
 	}
-	fmt.Printf("\n\033[A%11.3e\n", plt.Ymin)
+	fmt.Printf("\n\033[A%11.3e\n", min)
 }
