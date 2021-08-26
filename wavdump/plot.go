@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/jaymzee/go-dsp/fft"
+	"github.com/jaymzee/go-dsp/signal/fft"
 	"github.com/jaymzee/go-dsp/wavio"
 	"github.com/jaymzee/img/plot"
 	"github.com/jaymzee/img/term"
@@ -34,7 +34,7 @@ func plotWave(wf *wavio.File) error {
 		winsize.Yres = 200
 	}
 
-	if terminal == "kitty" || terminal == "iTerm" {
+	if cfg.terminal == "kitty" || cfg.terminal == "iTerm" {
 		charHeight := winsize.Yres / winsize.Rows
 		charWidth := winsize.Xres / winsize.Cols
 		width, height = int((winsize.Cols-13)*charWidth), int(charHeight*10)
@@ -42,21 +42,21 @@ func plotWave(wf *wavio.File) error {
 		width, height = int(winsize.Cols)-16, int(winsize.Rows)-3
 	}
 
-	x, err := wf.ToFloat64(sampleRange(wf, nFlag))
+	x, err := wf.ToFloat64(sampleRange(wf, cfg.nFlag))
 	if err != nil {
 		return err
 	}
-	if fFlag {
+	if cfg.fFlag {
 		X := fft.Complex(x)
 		fft.IterativeFFT(X, 1)
 		x = fft.Abs(X)
 	}
 
-	if sFlag < 0 {
-		plt = plot.PlotFunc(x, logRms(sFlag), square, width, height)
+	if cfg.sFlag < 0 {
+		plt = plot.PlotFunc(x, logRms(cfg.sFlag), square, width, height)
 		plt.LineColor = 0x0000ffff
 		plt.Dots = false
-	} else if rFlag {
+	} else if cfg.rFlag {
 		plt = plot.PlotFunc(x, math.Sqrt, square, width, height)
 		plt.LineColor = 0x0000ffff
 		plt.Dots = false
@@ -66,7 +66,7 @@ func plotWave(wf *wavio.File) error {
 		plt.Dots = true
 	}
 
-	if terminal == "kitty" || terminal == "iTerm" {
+	if cfg.terminal == "kitty" || cfg.terminal == "iTerm" {
 		Plot(plt.RenderPng(), plt.Ymin, plt.Ymax)
 	} else {
 		fmt.Print(plt.RenderAscii())
@@ -77,7 +77,7 @@ func plotWave(wf *wavio.File) error {
 
 func Plot(buf []byte, min, max float64) {
 	fmt.Printf("%11.3e", max)
-	if terminal == "kitty" {
+	if cfg.terminal == "kitty" {
 		kitty.WriteImage("a=T,f=100", buf)
 	} else {
 		iTerm2.WriteImage(buf)

@@ -10,30 +10,13 @@ import (
 	"strings"
 )
 
-var (
-	eFlag    bool
-	fFlag    bool
-	lFlag    bool
-	pFlag    bool
-	rFlag    bool
-	sFlag    float64
-	nFlag    string
-	terminal string
-)
-
-const nFlagHelp = `range of samples to print/plot
-examples:
-    100		first 100 samples
-    50:100	50th thru 100th sample
-    100:	from 100th sample to the end of the file`
-
 func init() {
 	if !strings.Contains(os.Getenv("WAVDUMP"), "nogfx") {
 		if strings.Contains(os.Getenv("TERM"), "kitty") && term.Isatty() {
-			terminal = "kitty"
+			cfg.terminal = "kitty"
 		}
 		if strings.Contains(os.Getenv("WAVDUMP"), "iTerm") {
-			terminal = "iTerm"
+			cfg.terminal = "iTerm"
 		}
 	}
 	flag.Usage = func() {
@@ -46,14 +29,19 @@ func init() {
 		fmt.Fprintf(os.Stderr,
 			"  WAVDUMP=nogfx \tdisable graphics (Kitty terminal)\n")
 	}
-	flag.BoolVar(&eFlag, "e", false, "print samples as floating point")
-	flag.BoolVar(&fFlag, "f", false, "plot FFT")
-	flag.BoolVar(&lFlag, "l", false,
+	flag.BoolVar(&cfg.eFlag, "e", false, "print samples as floating point")
+	flag.BoolVar(&cfg.fFlag, "f", false, "plot FFT")
+	flag.BoolVar(&cfg.lFlag, "l", false,
 		"print samples on one line (no pretty print)")
-	flag.StringVar(&nFlag, "n", "", nFlagHelp)
-	flag.BoolVar(&pFlag, "p", false, "plot samples")
-	flag.BoolVar(&rFlag, "r", false, "plot RMS")
-	flag.Float64Var(&sFlag, "s", 0.0, "plot log RMS, floor in dB (-40 dB)")
+	flag.StringVar(&cfg.nFlag, "n", "",
+		"range of samples to print/plot\n" +
+		"examples:\n" +
+		"  100     first 100 samples\n" +
+		"  50:100  50th thru 100th sample\n" +
+		"  100:    from 100th sample to the end of the file")
+	flag.BoolVar(&cfg.pFlag, "p", false, "plot samples")
+	flag.BoolVar(&cfg.rFlag, "r", false, "plot RMS")
+	flag.Float64Var(&cfg.sFlag, "s", 0.0, "plot log RMS, floor in dB (-40 dB)")
 }
 
 func main() {
@@ -79,7 +67,7 @@ func dumpFile(filename string) {
 	}
 
 	// print summary
-	first, last := sampleRange(wf, nFlag)
+	first, last := sampleRange(wf, cfg.nFlag)
 	head := fmt.Sprintf("%s: %s [%d:%d]", filename, wf.Summary(), first, last)
 	if len(head) < getTermWidth() {
 		fmt.Println(head)
@@ -88,7 +76,7 @@ func dumpFile(filename string) {
 	}
 
 	// print some samples
-	if (nFlag != "" && !pFlag) || eFlag || lFlag {
+	if (cfg.nFlag != "" && !cfg.pFlag) || cfg.eFlag || cfg.lFlag {
 		err := printSamples(wf)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "\x1b[1;31mdata:\x1b[0m %s\n", err)
@@ -97,7 +85,7 @@ func dumpFile(filename string) {
 	}
 
 	// plot some samples
-	if pFlag {
+	if cfg.pFlag {
 		err := plotWave(wf)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "\x1b[1;31mplot:\x1b[0m %s\n", err)
