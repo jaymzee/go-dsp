@@ -40,7 +40,7 @@ func WriteITerm(data []byte) {
 	enc := base64.StdEncoding
 	encoded := make([]byte, enc.EncodedLen(len(data)))
 	enc.Encode(encoded, data)
-	fmt.Printf("\033]1337;size=%v;inline=1:", len(data))
+	fmt.Printf("\033]1337;File=size=%v;inline=1:", len(data))
 	os.Stdout.Write(encoded)
 	os.Stdout.Write([]byte{0x07})
 }

@@ -39,7 +39,7 @@ func plotWave(wf *wavio.File) error {
 		charWidth := winsize.Xres / winsize.Cols
 		width, height = int((winsize.Cols-13)*charWidth), int(charHeight*10)
 	} else if terminal=="iTerm" {
-		width, height = 600, 200
+		width, height = 800, 200
 	} else {
 		width, height = int(winsize.Cols)-16, int(winsize.Rows)-3
 	}
