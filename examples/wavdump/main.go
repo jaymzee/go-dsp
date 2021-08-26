@@ -39,6 +39,11 @@ func init() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [options] wavfile\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "options:\n")
 		flag.PrintDefaults()
+		fmt.Fprintf(os.Stderr, "environment variables:\n")
+		fmt.Fprintf(os.Stderr,
+			"  WAVDUMP=iTerm2\tplot using graphics in iTerm2 or mintty\n")
+		fmt.Fprintf(os.Stderr,
+			"  WAVDUMP=nogfx \tdisable graphics (Kitty terminal)\n")
 	}
 	flag.BoolVar(&eFlag, "e", false, "print samples as floating point")
 	flag.BoolVar(&fFlag, "f", false, "plot FFT")
@@ -46,8 +51,8 @@ func init() {
 		"print samples on one line (no pretty print)")
 	flag.StringVar(&nFlag, "n", "", nFlagHelp)
 	flag.BoolVar(&pFlag, "p", false, "plot samples")
-	flag.BoolVar(&rFlag, "r", false, "RMS plot")
-	flag.Float64Var(&sFlag, "s", 0.0, "Log RMS plot floor dB (e.g. -40 dB)")
+	flag.BoolVar(&rFlag, "r", false, "plot RMS")
+	flag.Float64Var(&sFlag, "s", 0.0, "plot log RMS, floor in dB (-40 dB)")
 }
 
 func main() {

@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/jaymzee/go-dsp/fft"
-	"github.com/jaymzee/go-dsp/plot"
 	"github.com/jaymzee/go-dsp/wavio"
+	"github.com/jaymzee/img/plot"
+	"github.com/jaymzee/img/term/iTerm2"
+	"github.com/jaymzee/img/term/kitty"
 	"image/png"
 	"math"
 	"math/cmplx"
-	"os"
 )
 
 func idF64(x float64) float64 {
@@ -34,11 +35,11 @@ func plotWave(wf *wavio.File) error {
 	if err != nil {
 		winsize = &Winsize{24, 80, 0, 0}
 	}
-	if terminal=="kitty" {
+	if terminal == "kitty" {
 		charHeight := winsize.Yres / winsize.Rows
 		charWidth := winsize.Xres / winsize.Cols
 		width, height = int((winsize.Cols-13)*charWidth), int(charHeight*10)
-	} else if terminal=="iTerm" {
+	} else if terminal == "iTerm" {
 		width, height = 800, 200
 	} else {
 		width, height = int(winsize.Cols)-16, int(winsize.Rows)-3
@@ -76,7 +77,7 @@ func plotWave(wf *wavio.File) error {
 	if terminal == "kitty" || terminal == "iTerm" {
 		GraphicsPlot(plt)
 	} else {
-		plt.RenderAscii(os.Stdout)
+		fmt.Print(plt.RenderAscii())
 	}
 
 	return nil
@@ -92,9 +93,9 @@ func GraphicsPlot(plt *plot.Plot) {
 		panic(err)
 	}
 	if terminal == "kitty" {
-		plot.WriteKitty("a=T,f=100", buf.Bytes())
+		kitty.WriteImage("a=T,f=100", buf.Bytes())
 	} else {
-		plot.WriteITerm(buf.Bytes())
+		iTerm2.WriteImage(buf.Bytes())
 	}
 	fmt.Printf("\n\033[A%11.3e\n", plt.Ymin)
 }
