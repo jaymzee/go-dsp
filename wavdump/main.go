@@ -62,7 +62,7 @@ func dumpFile(filename string) {
 	// print summary
 	first, last := sampleRange(wf, cfg.nFlag)
 	head := fmt.Sprintf("%s: %s [%d:%d]", filename, wf.Summary(), first, last)
-	if len(head) < getTermWidth() {
+	if !term.Isatty() || len(head) < getTermWidth() {
 		fmt.Println(head)
 	} else {
 		fmt.Println(wf.Summary())

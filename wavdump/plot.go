@@ -30,11 +30,17 @@ func plotWave(wf *wavio.File) error {
 		winsize = &term.Winsize{24, 80, 0, 0}
 	}
 	if winsize.Xres <= 0 {
-		winsize.Xres = 800
-		winsize.Yres = 200
+		// no IO_CNTRL TIOCGWINSZ, so create sensible defaults
+		winsize.Xres = 1024
+		winsize.Yres = 768
+	}
+	if cfg.termXres > 0 {
+		// allow overriding in environment
+		winsize.Xres = cfg.termXres
+		winsize.Yres = cfg.termYres
 	}
 
-	if cfg.terminal == "kitty" || cfg.terminal == "iTerm" {
+	if cfg.terminal == "kitty" || cfg.terminal == "iterm" {
 		charHeight := winsize.Yres / winsize.Rows
 		charWidth := winsize.Xres / winsize.Cols
 		width, height = int((winsize.Cols-13)*charWidth), int(charHeight*10)
@@ -47,9 +53,7 @@ func plotWave(wf *wavio.File) error {
 		return err
 	}
 	if cfg.fFlag {
-		X := fft.Complex(x)
-		fft.IterativeFFT(X, 1)
-		x = fft.Abs(X)
+		x = fft.Abs(fft.FFT(fft.Complex(x)))
 	}
 
 	if cfg.sFlag < 0 {
@@ -66,7 +70,7 @@ func plotWave(wf *wavio.File) error {
 		plt.Dots = true
 	}
 
-	if cfg.terminal == "kitty" || cfg.terminal == "iTerm" {
+	if cfg.terminal == "kitty" || cfg.terminal == "iterm" {
 		Plot(plt.RenderPng(), plt.Ymin, plt.Ymax)
 	} else {
 		fmt.Print(plt.RenderAscii())
@@ -81,6 +85,7 @@ func Plot(buf []byte, min, max float64) {
 		kitty.WriteImage("a=T,f=100", buf)
 	} else {
 		iTerm2.WriteImage(buf)
+		fmt.Printf("\033[A")
 	}
 	fmt.Printf("\n\033[A%11.3e\n", min)
 }
