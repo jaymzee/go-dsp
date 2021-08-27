@@ -11,14 +11,6 @@ import (
 )
 
 func init() {
-	if !strings.Contains(os.Getenv("WAVDUMP"), "nogfx") {
-		if strings.Contains(os.Getenv("TERM"), "kitty") && term.Isatty() {
-			cfg.terminal = "kitty"
-		}
-		if strings.Contains(os.Getenv("WAVDUMP"), "iTerm") {
-			cfg.terminal = "iTerm"
-		}
-	}
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [options] wavfile\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "options:\n")
@@ -34,11 +26,11 @@ func init() {
 	flag.BoolVar(&cfg.lFlag, "l", false,
 		"print samples on one line (no pretty print)")
 	flag.StringVar(&cfg.nFlag, "n", "",
-		"range of samples to print/plot\n" +
-		"examples:\n" +
-		"  100     first 100 samples\n" +
-		"  50:100  50th thru 100th sample\n" +
-		"  100:    from 100th sample to the end of the file")
+		"range of samples to print/plot\n"+
+			"examples:\n"+
+			"  100     first 100 samples\n"+
+			"  50:100  50th thru 100th sample\n"+
+			"  100:    from 100th sample to the end of the file")
 	flag.BoolVar(&cfg.pFlag, "p", false, "plot samples")
 	flag.BoolVar(&cfg.rFlag, "r", false, "plot RMS")
 	flag.Float64Var(&cfg.sFlag, "s", 0.0, "plot log RMS, floor in dB (-40 dB)")
@@ -47,6 +39,7 @@ func init() {
 func main() {
 	// parse program arguments
 	flag.Parse()
+	cfg.ProcessFlags()
 	args := flag.Args()
 	if len(args) < 1 {
 		flag.Usage()
@@ -76,7 +69,7 @@ func dumpFile(filename string) {
 	}
 
 	// print some samples
-	if (cfg.nFlag != "" && !cfg.pFlag) || cfg.eFlag || cfg.lFlag {
+	if (cfg.nFlag != "" && !cfg.plot) || cfg.eFlag || cfg.lFlag {
 		err := printSamples(wf)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "\x1b[1;31mdata:\x1b[0m %s\n", err)
@@ -85,7 +78,7 @@ func dumpFile(filename string) {
 	}
 
 	// plot some samples
-	if cfg.pFlag {
+	if cfg.plot {
 		err := plotWave(wf)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "\x1b[1;31mplot:\x1b[0m %s\n", err)
