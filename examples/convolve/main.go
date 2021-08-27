@@ -22,7 +22,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	h, _, err := wavio.ReadFloat64(args[0])
+	h, _, err := wavio.ReadFloat64(args[1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -30,7 +30,7 @@ func main() {
 
 	y := signal.Conv(x, h)
 
-	err = wavio.Write(args[2], wavio.PCM, fs, y)
+	err = wavio.Write(args[2], wavio.Float, fs, y)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
