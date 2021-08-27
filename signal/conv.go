@@ -1,4 +1,4 @@
-package math
+package signal
 
 func Conv(x, h []float64) []float64 {
 	L := len(x)

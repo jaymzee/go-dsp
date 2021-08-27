@@ -1,4 +1,4 @@
-package math
+package signal
 
 import "testing"
 
