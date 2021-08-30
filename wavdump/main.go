@@ -116,9 +116,6 @@ func min(a int, b int) int {
 }
 
 func getTermWidth() int {
-	winsize, err := term.GetWinsize()
-	if err != nil {
-		return 80
-	}
-	return int(winsize.Cols)
+	ws := term.GetWinsize()
+	return int(ws.Cols)
 }

@@ -25,10 +25,7 @@ func plotWave(wf *wavio.File) error {
 	var plt *plot.Plot
 	var width, height int
 
-	winsize, err := term.GetWinsize()
-	if err != nil {
-		winsize = &term.Winsize{24, 80, 0, 0}
-	}
+	winsize := term.GetWinsize()
 	if winsize.Xres <= 0 {
 		// no IO_CNTRL TIOCGWINSZ, so create sensible defaults
 		winsize.Xres = 1024
@@ -45,7 +42,7 @@ func plotWave(wf *wavio.File) error {
 		charWidth := winsize.Xres / winsize.Cols
 		width, height = int((winsize.Cols-13)*charWidth), int(charHeight*10)
 	} else {
-		width, height = int(winsize.Cols)-16, int(winsize.Rows)-3
+		width, height = int(winsize.Cols)-16, int(winsize.Rows)-5
 	}
 
 	x, err := wf.ToFloat64(sampleRange(wf, cfg.nFlag))
