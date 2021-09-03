@@ -51,6 +51,7 @@ func plotWave(wf *wavio.File) error {
 	}
 	if cfg.fFlag {
 		x = fft.Abs(fft.FFT(fft.Complex(x)))
+		x = x[:len(x)/2] // upper half is redundant for real signals
 	}
 
 	if cfg.sFlag < 0 {

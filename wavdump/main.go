@@ -22,7 +22,7 @@ func init() {
 			"  WAVDUMP=nogfx \tdisable graphics (Kitty terminal)\n")
 	}
 	flag.BoolVar(&cfg.eFlag, "e", false, "print samples as floating point")
-	flag.BoolVar(&cfg.fFlag, "f", false, "plot FFT")
+	flag.BoolVar(&cfg.fFlag, "f", false, "plot FFT (length must be a power of 2)")
 	flag.BoolVar(&cfg.lFlag, "l", false,
 		"print samples on one line (no pretty print)")
 	flag.StringVar(&cfg.nFlag, "n", "",
