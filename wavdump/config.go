@@ -33,7 +33,7 @@ func (c *Config) ProcessFlags() {
 	}
 
 	env := strings.ToLower(os.Getenv("WAVDUMP"))
-	for _, expr := range strings.Split(env, ":") {
+	for _, expr := range strings.Fields(env) {
 		s := strings.Split(expr, "=")
 		switch s[0] {
 		case "term":

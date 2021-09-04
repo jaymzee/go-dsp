@@ -9,6 +9,7 @@ import (
 	"github.com/jaymzee/img/term/iTerm2"
 	"github.com/jaymzee/img/term/kitty"
 	"math"
+	"os"
 )
 
 func square(x float64) float64 {
@@ -80,9 +81,9 @@ func plotWave(wf *wavio.File) error {
 func Plot(buf []byte, min, max float64) {
 	fmt.Printf("%11.3e", max)
 	if cfg.terminal == "kitty" {
-		kitty.WriteImage("a=T,f=100", buf)
+		kitty.WriteImage(os.Stdout, "a=T,f=100", buf)
 	} else {
-		iTerm2.WriteImage(buf)
+		iTerm2.WriteImage(os.Stdout, "inline=1", buf)
 		fmt.Printf("\033[A")
 	}
 	fmt.Printf("\n\033[A%11.3e\n", min)
