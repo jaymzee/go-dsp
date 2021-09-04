@@ -6,7 +6,7 @@ import (
 	"github.com/jaymzee/go-dsp/wavio"
 	"github.com/jaymzee/img/plot"
 	"github.com/jaymzee/img/term"
-	"github.com/jaymzee/img/term/iTerm2"
+	"github.com/jaymzee/img/term/iterm"
 	"github.com/jaymzee/img/term/kitty"
 	"math"
 	"os"
@@ -56,35 +56,50 @@ func plotWave(wf *wavio.File) error {
 	}
 
 	if cfg.sFlag < 0 {
-		plt = plot.PlotFunc(x, logRms(cfg.sFlag), square, width, height)
+		plt = plot.Compose(logRms(cfg.sFlag), square, x, width, height)
 		plt.LineColor = 0x0000ffff
 		plt.Dots = false
 	} else if cfg.rFlag {
-		plt = plot.PlotFunc(x, math.Sqrt, square, width, height)
+		plt = plot.Compose(math.Sqrt, square, x, width, height)
 		plt.LineColor = 0x0000ffff
 		plt.Dots = false
 	} else {
-		plt = plot.PlotFunc(x, plot.Id, plot.Id, width, height)
+		plt = plot.Compose(plot.ID, plot.ID, x, width, height)
 		plt.LineColor = 0x00ff00ff
 		plt.Dots = true
 	}
 
 	if cfg.terminal == "kitty" || cfg.terminal == "iterm" {
-		Plot(plt.RenderPng(), plt.Ymin, plt.Ymax)
+		err := PlotPNG(plt.RenderPNG(), plt.Ymin, plt.Ymax)
+		if err != nil {
+			return err
+		}
 	} else {
-		fmt.Print(plt.RenderAscii())
+		fmt.Print(plt.RenderASCII())
 	}
 
 	return nil
 }
 
-func Plot(buf []byte, min, max float64) {
+// PlotPNG writes the PNG image to the terminal using the appropriate
+// terminal graphics protocol.
+func PlotPNG(buf []byte, min, max float64) error {
 	fmt.Printf("%11.3e", max)
-	if cfg.terminal == "kitty" {
-		kitty.WriteImage(os.Stdout, "a=T,f=100", buf)
-	} else {
-		iTerm2.WriteImage(os.Stdout, "inline=1", buf)
+	switch cfg.terminal {
+	case "kitty":
+		err := kitty.WriteImage(os.Stdout, "a=T,f=100", buf)
+		if err != nil {
+			return err
+		}
+	case "iterm":
+		err := iterm.WriteImage(os.Stdout, "inline=1", buf)
+		if err != nil {
+			return err
+		}
 		fmt.Printf("\033[A")
+	default:
+		return fmt.Errorf("%q does not support graphics", cfg.terminal)
 	}
 	fmt.Printf("\n\033[A%11.3e\n", min)
+	return nil
 }

@@ -9,6 +9,7 @@ import (
 
 var cfg Config
 
+// Config is the app configuration based on Flags and Environment variables
 type Config struct {
 	eFlag    bool
 	fFlag    bool
@@ -23,6 +24,7 @@ type Config struct {
 	plot     bool
 }
 
+// ProcessFlags finishes initialization of the configuration struct Config
 func (c *Config) ProcessFlags() {
 	if c.pFlag || c.rFlag || c.sFlag < 0.0 || c.fFlag {
 		c.plot = true
