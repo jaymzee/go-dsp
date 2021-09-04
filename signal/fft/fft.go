@@ -89,11 +89,53 @@ func IFFT(X []complex128) []complex128 {
 	return x
 }
 
+// Convolve uses the N point FFT to compute the convolution x and h
+func Convolve(x, h []complex128, N int) []complex128 {
+	// copy to N size array
+	xx := make([]complex128, N)
+	hh := make([]complex128, N)
+	copy(xx, x)
+	copy(hh, h)
+
+	// take FFT
+	X := Shuffle(xx)
+	H := Shuffle(hh)
+	IterativeFFT(X, -1)
+	IterativeFFT(H, -1)
+
+	// multiply
+	for n, Hn := range H {
+		X[n] *= Hn
+	}
+
+	// IFFT
+	y := Shuffle(X)
+	IterativeFFT(y, 1)
+
+	return y
+}
+
 // convenience function to convert reals to complex
 func Complex(x []float64) []complex128 {
 	y := make([]complex128, len(x))
 	for n, xn := range x {
 		y[n] = complex(xn, 0.0)
+	}
+	return y
+}
+
+func Real(x []complex128) []float64 {
+	y := make([]float64, len(x))
+	for n, xn := range x {
+		y[n] = real(xn)
+	}
+	return y
+}
+
+func Imag(x []complex128) []float64 {
+	y := make([]float64, len(x))
+	for n, xn := range x {
+		y[n] = imag(xn)
 	}
 	return y
 }
