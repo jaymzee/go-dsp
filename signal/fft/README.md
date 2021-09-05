@@ -94,7 +94,7 @@ The sign is the sign of the angle of the twiddle factor exp(2πj/N) and
 should be -1 is for FFT and 1 for the inverse FFT.
 The algorithm is based on Data reordering, bit reversal, and in-place
 algorithms section of
-[Cooley-Tukey FFT]([https://en.wikipedia.org/wiki/Cooley-Tukey_FFT_algorithm](https://en.wikipedia.org/wiki/Cooley-Tukey_FFT_algorithm))
+[https://en.wikipedia.org/wiki/Cooley-Tukey_FFT_algorithm](https://en.wikipedia.org/wiki/Cooley-Tukey_FFT_algorithm)
 
 ### func [Log2](/util.go#L5)
 

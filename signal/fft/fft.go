@@ -38,7 +38,7 @@ func Shuffle(x []complex128) []complex128 {
 // should be -1 is for FFT and 1 for the inverse FFT.
 // The algorithm is based on Data reordering, bit reversal, and in-place
 // algorithms section of
-// [Cooley-Tukey FFT](https://en.wikipedia.org/wiki/Cooley-Tukey_FFT_algorithm)
+// https://en.wikipedia.org/wiki/Cooley-Tukey_FFT_algorithm
 func IterativeFFT(x []complex128, sign int) {
 	N := len(x)
 	log2N := Log2(N)
