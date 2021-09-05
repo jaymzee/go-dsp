@@ -35,11 +35,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	y := fft.Real(fft.Convolve(fft.Complex(x), fft.Complex(h), N))
+	y := fft.Fmap(Real, fft.Conv(fft.Complex(x), fft.Complex(h), N))
 
 	err = wavio.Write(args[3], wavio.Float, fs, y)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+}
+
+// Real returns the real part of x
+func Real(x complex128) float64 {
+	return real(x)
 }

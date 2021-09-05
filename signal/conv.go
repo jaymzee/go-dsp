@@ -1,5 +1,7 @@
 package signal
 
+// Conv returns the convolution of x and h. The computational complexity is
+// O(n²) so for large input signals you should use fft.Conv instead.
 func Conv(x, h []float64) []float64 {
 	L := len(x)
 	M := len(h)
@@ -16,4 +18,3 @@ func Conv(x, h []float64) []float64 {
 
 	return y
 }
-

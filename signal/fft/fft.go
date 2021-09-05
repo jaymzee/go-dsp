@@ -6,26 +6,13 @@ import (
 	"math/cmplx"
 )
 
-// Log2 returns the radix-2 logarithm of integer x
-// very fast implementation
-func Log2(x int) int {
-	for n := 0; ; n++ {
-		x >>= 1
-		if x == 0 {
-			return n
-		}
-	}
-}
-
 // Twiddle returns exp(2πj/N)
 func Twiddle(N int) complex128 {
 	angle := 2 * math.Pi / float64(N)
 	return cmplx.Exp(complex(0, angle))
 }
 
-// Flip reverses the order of bits in x
-//  x value to reverse
-//  w width (number of bits)
+// Flip reverses the order of the bits in x with bit width w.
 func Flip(x uint32, w int) uint32 {
 	x = (x&0xaaaaaaaa)>>1 | (x&0x55555555)<<1
 	x = (x&0xcccccccc)>>2 | (x&0x33333333)<<2
@@ -35,8 +22,7 @@ func Flip(x uint32, w int) uint32 {
 	return x >> (32 - uint(w))
 }
 
-// Shuffle returns x shuffled
-// entries are shuffled by calling flip on the index
+// Shuffle shuffles elements of x by calling Flip on the index of x.
 func Shuffle(x []complex128) []complex128 {
 	N := len(x)
 	w := Log2(N)
@@ -47,7 +33,12 @@ func Shuffle(x []complex128) []complex128 {
 	return y
 }
 
-// IterativeFFT performs in-place and iterative FFT algorithm
+// IterativeFFT computes the FFT or inverse FFT of x in-place.
+// The sign is the sign of the angle of the twiddle factor exp(2πj/N) and
+// should be -1 is for FFT and 1 for the inverse FFT.
+// The algorithm is based on Data reordering, bit reversal, and in-place
+// algorithms section of
+// [Cooley-Tukey FFT](https://en.wikipedia.org/wiki/Cooley-Tukey_FFT_algorithm)
 func IterativeFFT(x []complex128, sign int) {
 	N := len(x)
 	log2N := Log2(N)
@@ -66,7 +57,8 @@ func IterativeFFT(x []complex128, sign int) {
 			}
 		}
 	}
-	// check if we are performing an IFFT
+
+	// if we are performing an IFFT, then x must be divided by N
 	if sign > 0 {
 		N := float64(len(x))
 		for n, xn := range x {
@@ -75,85 +67,18 @@ func IterativeFFT(x []complex128, sign int) {
 	}
 }
 
-// FFT computes the Fast Fourier Transform
+// FFT returns the Fast Fourier Transform of x. Under the hood it uses an
+// iterative in place algorigthm with N log N time complexity.
 func FFT(x []complex128) []complex128 {
 	X := Shuffle(x)
 	IterativeFFT(X, -1)
 	return X
 }
 
-// IFFT computes the Inverse Fast Fourier Transform
+// IFFT returns the Inverse Fast Fourier Transform of X. Under the hood it
+// uses an iterative in place algorigthm with N log N time complexity.
 func IFFT(X []complex128) []complex128 {
 	x := Shuffle(X)
 	IterativeFFT(x, 1)
 	return x
-}
-
-// Convolve uses the N point FFT to compute the convolution x and h
-func Convolve(x, h []complex128, N int) []complex128 {
-	// copy to N size array
-	xx := make([]complex128, N)
-	hh := make([]complex128, N)
-	copy(xx, x)
-	copy(hh, h)
-
-	// take FFT
-	X := Shuffle(xx)
-	H := Shuffle(hh)
-	IterativeFFT(X, -1)
-	IterativeFFT(H, -1)
-
-	// multiply
-	for n, Hn := range H {
-		X[n] *= Hn
-	}
-
-	// IFFT
-	y := Shuffle(X)
-	IterativeFFT(y, 1)
-
-	return y
-}
-
-// convenience function to convert reals to complex
-func Complex(x []float64) []complex128 {
-	y := make([]complex128, len(x))
-	for n, xn := range x {
-		y[n] = complex(xn, 0.0)
-	}
-	return y
-}
-
-func Real(x []complex128) []float64 {
-	y := make([]float64, len(x))
-	for n, xn := range x {
-		y[n] = real(xn)
-	}
-	return y
-}
-
-func Imag(x []complex128) []float64 {
-	y := make([]float64, len(x))
-	for n, xn := range x {
-		y[n] = imag(xn)
-	}
-	return y
-}
-
-// convenience function to convert complex to reals
-func Abs(x []complex128) []float64 {
-	y := make([]float64, len(x))
-	for n, xn := range x {
-		y[n] = cmplx.Abs(xn)
-	}
-	return y
-}
-
-// convenience function to convert complex to reals
-func Phase(x []complex128) []float64 {
-	y := make([]float64, len(x))
-	for n, xn := range x {
-		y[n] = cmplx.Phase(xn)
-	}
-	return y
 }
