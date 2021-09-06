@@ -28,7 +28,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	N := 1 << (fft.Log2(max(len(x), len(h))-1) + 1)
+	N := 1 << uint(fft.Log2(len(x)+len(h)-2)+1)
 	y := fft.Fmap(Real, fft.Conv(fft.Complex(x), fft.Complex(h), N))
 
 	err = wavio.Write(args[2], wavio.Float, fs, y)
@@ -41,11 +41,4 @@ func main() {
 // Real returns the real part of x
 func Real(x complex128) float64 {
 	return real(x)
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }
