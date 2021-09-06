@@ -1,43 +1,37 @@
 package main
 
 import (
-	"fmt"
 	"flag"
-	"os"
-	"github.com/jaymzee/go-dsp/wavio"
+	"fmt"
 	"github.com/jaymzee/go-dsp/signal/fft"
-	"strconv"
+	"github.com/jaymzee/go-dsp/wavio"
+	"os"
 )
 
 func main() {
 	flag.Parse()
 	args := flag.Args()
-	if len(args) < 4 {
-		fmt.Println("Usage: fconv N xwavfile hwavfile ywavfile")
+	if len(args) < 3 {
+		fmt.Println("Usage: fftconv x.wav h.wav out.wav")
 		os.Exit(2)
 	}
 
-	N, err := strconv.Atoi(args[0])
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(2)
-	}
-
-	x, fs, err := wavio.ReadFloat64(args[1])
+	x, fs, err := wavio.ReadFloat64(args[0])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
-	h, _, err := wavio.ReadFloat64(args[2])
+	h, _, err := wavio.ReadFloat64(args[1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
+	N := 1 << (fft.Log2(max(len(x), len(h))-1) + 1)
 	y := fft.Fmap(Real, fft.Conv(fft.Complex(x), fft.Complex(h), N))
 
-	err = wavio.Write(args[3], wavio.Float, fs, y)
+	err = wavio.Write(args[2], wavio.Float, fs, y)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -47,4 +41,11 @@ func main() {
 // Real returns the real part of x
 func Real(x complex128) float64 {
 	return real(x)
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
