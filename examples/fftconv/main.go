@@ -29,7 +29,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	N := 1 << uint(fft.Log2(len(x)+len(h)-2)+1)
+	N := 2 << uint(signal.Log2(len(x)+len(h)-2))
 	y := signal.MapCtof(Real, fft.Conv(signal.Complex(x), signal.Complex(h), N))
 
 	err = wavio.Write(args[2], wavio.Float, fs, y)
