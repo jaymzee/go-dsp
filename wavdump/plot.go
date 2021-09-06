@@ -9,6 +9,7 @@ import (
 	"github.com/jaymzee/img/term/iterm"
 	"github.com/jaymzee/img/term/kitty"
 	"math"
+	"math/cmplx"
 	"os"
 )
 
@@ -51,7 +52,7 @@ func plotWave(wf *wavio.File) error {
 		return err
 	}
 	if cfg.fFlag {
-		x = fft.Abs(fft.FFT(fft.Complex(x)))
+		x = fft.Fmap(cmplx.Abs, fft.FFT(fft.Complex(x)))
 		x = x[:len(x)/2] // upper half is redundant for real signals
 	}
 

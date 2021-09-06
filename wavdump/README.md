@@ -17,8 +17,8 @@ Display information from wav file
       -s float
             plot log RMS, floor in dB (-40 dB)
     environment variables:
-      WAVDUMP=iTerm2        plot using graphics in iTerm2 or mintty
-      WAVDUMP=nogfx         disable graphics (Kitty terminal)
+      WAVDUMP=term=iterm xres=800 yres=200    terminal graphics (iTerm2/mintty)
+      WAVDUMP=nogfx    disable graphics (Kitty terminal)
 
 ```
 $ wavdump tone.wav

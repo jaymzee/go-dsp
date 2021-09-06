@@ -17,9 +17,9 @@ func init() {
 		flag.PrintDefaults()
 		fmt.Fprintf(os.Stderr, "environment variables:\n")
 		fmt.Fprintf(os.Stderr,
-			"  WAVDUMP=iTerm2\tplot using graphics in iTerm2 or mintty\n")
+			"  WAVDUMP=term=iterm xres=800 yres=200    terminal graphics (iTerm2 or mintty)\n")
 		fmt.Fprintf(os.Stderr,
-			"  WAVDUMP=nogfx \tdisable graphics (Kitty terminal)\n")
+			"  WAVDUMP=nogfx    disable graphics (Kitty terminal)\n")
 	}
 	flag.BoolVar(&cfg.eFlag, "e", false, "print samples as floating point")
 	flag.BoolVar(&cfg.fFlag, "f", false, "plot FFT (length must be a power of 2)")
