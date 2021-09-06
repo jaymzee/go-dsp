@@ -15,7 +15,7 @@ Complex converts reals to complex
 Conv returns the convolution of x and h. The computational complexity is
 O(n²) so for large input signals you should use fft.Conv instead.
 
-### func [Log2](/math.go#L20)
+### func [Log2](/math.go#L44)
 
 `func Log2(x int) int`
 
@@ -39,17 +39,17 @@ MapC applies f to each complex element of x and returns the results
 
 MapCtof applies f to each complex element of x and returns the results
 
-### func [Max](/math.go#L12)
+### func [Max](/math.go#L6)
 
-`func Max(a, b int) int`
+`func Max(x []float64) float64`
 
-Max returns the maximum of a and b
+Max finds the maximum value in x
 
-### func [Min](/math.go#L4)
+### func [Min](/math.go#L17)
 
-`func Min(a, b int) int`
+`func Min(x []float64) float64`
 
-Min returns the minimum of a and b
+Min finds the minimum value in x
 
 ## Sub Packages
 
