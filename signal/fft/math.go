@@ -36,21 +36,3 @@ func Conv(x, h []complex128, N int) []complex128 {
 
 	return y
 }
-
-// Complex converts reals to complex
-func Complex(x []float64) []complex128 {
-	y := make([]complex128, len(x))
-	for n, xn := range x {
-		y[n] = complex(xn, 0.0)
-	}
-	return y
-}
-
-// Fmap converts complex to reals by applying f
-func Fmap(f func(complex128)float64, x []complex128) []float64 {
-	y := make([]float64, len(x))
-	for n, xn := range x {
-		y[n] = f(xn)
-	}
-	return y
-}

@@ -1,0 +1,37 @@
+package signal
+
+// Complex converts reals to complex
+func Complex(x []float64) []complex128 {
+	y := make([]complex128, len(x))
+	for n, xn := range x {
+		y[n] = complex(xn, 0.0)
+	}
+	return y
+}
+
+// Map applies f to each real element of x and returns the results
+func Map(f func(float64) float64, x []float64) []float64 {
+	y := make([]float64, len(x))
+	for n, xn := range x {
+		y[n] = f(xn)
+	}
+	return y
+}
+
+// MapC applies f to each complex element of x and returns the results
+func MapC(f func(complex128) complex128, x []complex128) []complex128 {
+	y := make([]complex128, len(x))
+	for n, xn := range x {
+		y[n] = f(xn)
+	}
+	return y
+}
+
+// MapCtof applies f to each complex element of x and returns the results
+func MapCtof(f func(complex128) float64, x []complex128) []float64 {
+	y := make([]float64, len(x))
+	for n, xn := range x {
+		y[n] = f(xn)
+	}
+	return y
+}
