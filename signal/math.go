@@ -2,26 +2,26 @@ package signal
 
 import "math"
 
-// Max finds the maximum value in x
-func Max(x []float64) float64 {
-	m := -math.MaxFloat64
-	for _, xn := range x {
-		if xn > m {
-			m = xn
+// Max finds the maximum of the args given
+func Max(args ...float64) float64 {
+	y := -math.MaxFloat64
+	for _, arg := range args {
+		if arg > y {
+			y = arg
 		}
 	}
-	return m
+	return y
 }
 
-// Min finds the minimum value in x
-func Min(x []float64) float64 {
-	m := math.MaxFloat64
-	for _, xn := range x {
-		if xn < m {
-			m = xn
+// Min finds the minimum of the args given
+func Min(args ...float64) float64 {
+	y := math.MaxFloat64
+	for _, arg := range args {
+		if arg < y {
+			y = arg
 		}
 	}
-	return m
+	return y
 }
 
 // min returns the minimum of a and b
