@@ -1,5 +1,6 @@
 ## wavdump
 Display information from wav file
+
     Usage: wavdump [options] wavfile
     options:
       -e    print samples as floating point
