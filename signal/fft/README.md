@@ -2,21 +2,17 @@
 
 Package fft provides functions for computing the Fast Fourier Transform
 
+Package fft provides functions for computing the Fast Fourier Transform
+
 ## Functions
 
-### func [Complex](/util.go#L41)
-
-`func Complex(x []float64) []complex128`
-
-Complex converts reals to complex
-
-### func [Conv](/util.go#L15)
+### func [Conv](/math.go#L15)
 
 `func Conv(x, h []complex128, N int) []complex128`
 
 Conv uses the N point FFT to compute the convolution x and h
 
-### func [FFT](/fft.go#L72)
+### func [FFT](/fft.go#L90)
 
 `func FFT(x []complex128) []complex128`
 
@@ -44,13 +40,7 @@ X = []complex128{
 }
 ```
 
-### func [Fmap](/util.go#L50)
-
-`func Fmap(f func(complex128) float64, x []complex128) []float64`
-
-Fmap converts complex to reals by applying f
-
-### func [IFFT](/fft.go#L80)
+### func [IFFT](/fft.go#L98)
 
 `func IFFT(X []complex128) []complex128`
 
@@ -79,7 +69,7 @@ x = []complex128{
 }
 ```
 
-### func [IterativeFFT](/fft.go#L42)
+### func [IterativeFFT](/fft.go#L60)
 
 `func IterativeFFT(x []complex128, sign int)`
 
@@ -90,7 +80,28 @@ The algorithm is based on Data reordering, bit reversal, and in-place
 algorithms section of
 [https://en.wikipedia.org/wiki/Cooley-Tukey_FFT_algorithm](https://en.wikipedia.org/wiki/Cooley-Tukey_FFT_algorithm)
 
-### func [Log2](/util.go#L5)
+```
+algorithm iterative-fft is
+   input: Array a of n complex values where n is a power of 2.
+   output: Array A the DFT of a.
+
+   bit-reverse-copy(a, A)
+   n ← a.length
+   for s = 1 to log(n) do
+       m ← 2^s
+       ωm ← exp(−2πi/m)
+       for k = 0 to n-1 by m do
+           ω ← 1
+           for j = 0 to m/2 – 1 do
+               t ← ω A[k + j + m/2]
+               u ← A[k + j]
+               A[k + j] ← u + t
+               A[k + j + m/2] ← u – t
+               ω ← ω ωm
+   return A
+```
+
+### func [Log2](/math.go#L5)
 
 `func Log2(x int) int`
 
@@ -101,3 +112,7 @@ Log2 returns the radix-2 logarithm of integer x using a very fast algorithm
 `func Shuffle(x []complex128) []complex128`
 
 Shuffle shuffles elements of x by calling Flip on the index of x.
+
+## Sub Packages
+
+* [benchmark](./benchmark)

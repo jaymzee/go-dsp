@@ -12,7 +12,7 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 	if len(args) < 3 {
-		fmt.Println("Usage: convolve x.wav h.wav out.wav")
+		fmt.Println("Usage: conv x.wav h.wav out.wav")
 		os.Exit(2)
 	}
 
