@@ -131,7 +131,7 @@ func (wf *File) readRIFFfmt(file *os.File) error {
 		}
 		bytecount += FmtSize
 	} else {
-		return fmt.Errorf("<fmt-ck> size must be at least %v bytes, got %v\n",
+		return fmt.Errorf("<fmt-ck> size must be at least %v bytes, got %v",
 			FmtSize, size)
 	}
 	if bytecount < size+4 {
