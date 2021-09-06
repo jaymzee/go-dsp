@@ -8,7 +8,7 @@ Based on the Data reordering, bit reversal, and in-place algorithms section of
         bit-reverse-copy(a, A)
         n ← a.length
         for s = 1 to log(n) do
-            m ← 2s
+            m ← 2^s
             ωm ← exp(−2πi/m)
             for k = 0 to n-1 by m do
                 ω ← 1

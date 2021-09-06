@@ -6,14 +6,14 @@ import (
 	"math/cmplx"
 )
 
-// Twiddle returns exp(2πj/N)
-func Twiddle(N int) complex128 {
+// twiddle returns exp(2πj/N)
+func twiddle(N int) complex128 {
 	angle := 2 * math.Pi / float64(N)
 	return cmplx.Exp(complex(0, angle))
 }
 
-// Flip reverses the order of the bits in x with bit width w.
-func Flip(x uint32, w int) uint32 {
+// reverseBits reverses the order of the bits in x with bit width w.
+func reverseBits(x uint32, w int) uint32 {
 	x = (x&0xaaaaaaaa)>>1 | (x&0x55555555)<<1
 	x = (x&0xcccccccc)>>2 | (x&0x33333333)<<2
 	x = (x&0xf0f0f0f0)>>4 | (x&0x0f0f0f0f)<<4
@@ -28,7 +28,7 @@ func Shuffle(x []complex128) []complex128 {
 	w := Log2(N)
 	y := make([]complex128, N)
 	for n, v := range x {
-		y[Flip(uint32(n), w)] = v
+		y[reverseBits(uint32(n), w)] = v
 	}
 	return y
 }
@@ -45,7 +45,7 @@ func IterativeFFT(x []complex128, sign int) {
 	for s := 1; s <= log2N; s++ {
 		m := 1 << uint(s)
 		m2 := m >> 1
-		Wm := Twiddle(sign * m)
+		Wm := twiddle(sign * m)
 		for k := 0; k < N; k += m {
 			W := 1 + 0i
 			for j := 0; j < m2; j++ {

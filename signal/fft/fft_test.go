@@ -21,17 +21,17 @@ func TestLog2(t *testing.T) {
 	}
 }
 
-func TestFlip_width3(t *testing.T) {
+func TestReverseBits_width3(t *testing.T) {
 	table := [8]uint32{0, 4, 2, 6, 1, 5, 3, 7}
 	for x, y := range table {
-		got := Flip(uint32(x), 3)
+		got := reverseBits(uint32(x), 3)
 		if got != y {
-			t.Errorf("flip(0x%08X) = 0x%08X; want 0x%08X", x, got, y)
+			t.Errorf("reverse(0x%08X) = 0x%08X; want 0x%08X", x, got, y)
 		}
 	}
 }
 
-func TestFlip_width32(t *testing.T) {
+func TestReverseBits_width32(t *testing.T) {
 	table := map[uint32]uint32{
 		0x00000001: 0x80000000,
 		0x00000002: 0x40000000,
@@ -46,9 +46,9 @@ func TestFlip_width32(t *testing.T) {
 		0x40000000: 0x00000002,
 	}
 	for x, y := range table {
-		got := Flip(x, 32)
+		got := reverseBits(x, 32)
 		if got != y {
-			t.Errorf("flip(0x%08X) = 0x%08X; want 0x%08X", x, got, y)
+			t.Errorf("reverse(0x%08X) = 0x%08X; want 0x%08X", x, got, y)
 		}
 	}
 }

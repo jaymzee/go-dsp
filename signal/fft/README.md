@@ -44,12 +44,6 @@ X = []complex128{
 }
 ```
 
-### func [Flip](/fft.go#L16)
-
-`func Flip(x uint32, w int) uint32`
-
-Flip reverses the order of the bits in x with bit width w.
-
 ### func [Fmap](/util.go#L50)
 
 `func Fmap(f func(complex128) float64, x []complex128) []float64`
@@ -107,9 +101,3 @@ Log2 returns the radix-2 logarithm of integer x using a very fast algorithm
 `func Shuffle(x []complex128) []complex128`
 
 Shuffle shuffles elements of x by calling Flip on the index of x.
-
-### func [Twiddle](/fft.go#L10)
-
-`func Twiddle(N int) complex128`
-
-Twiddle returns exp(2πj/N)
