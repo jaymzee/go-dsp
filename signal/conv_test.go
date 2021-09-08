@@ -41,3 +41,38 @@ func Equal(a, b []float64) bool {
 	}
 	return true
 }
+
+var (
+        x6 = []float64{1, 2, 3, 4, 5, 6}
+        h6 = []float64{4, 5, 6, 7, 8, 9}
+        x12 = []float64{1, 2, 3, 4, 5, 6, 6, 5, 4, 3, 2, 1}
+        h12 = []float64{1, 2, 3, 4, 5, 6, 6, 5, 4, 3, 2, 1}
+        x24 [24]float64
+        h24 [24]float64
+        x48 [48]float64
+        h48 [48]float64
+)
+
+func BenchmarkConv6(b *testing.B) {
+        for n := 0; n < b.N; n++ {
+                Conv(x6, h6)
+        }
+}
+
+func BenchmarkConv12(b *testing.B) {
+        for n := 0; n < b.N; n++ {
+                Conv(x12, h12)
+        }
+}
+
+func BenchmarkConv24(b *testing.B) {
+        for n := 0; n < b.N; n++ {
+                Conv(x24[:], h24[:])
+        }
+}
+
+func BenchmarkConv48(b *testing.B) {
+        for n := 0; n < b.N; n++ {
+                Conv(x48[:], h48[:])
+        }
+}
