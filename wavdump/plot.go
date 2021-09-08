@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/jaymzee/go-dsp/signal"
 	"github.com/jaymzee/go-dsp/signal/fft"
 	"github.com/jaymzee/go-dsp/wavio"
 	"github.com/jaymzee/img/plot"
@@ -52,7 +53,7 @@ func plotWave(wf *wavio.File) error {
 		return err
 	}
 	if cfg.fFlag {
-		x = fft.Fmap(cmplx.Abs, fft.FFT(fft.Complex(x)))
+		x = signal.MapReal(cmplx.Abs, fft.FFT(signal.Complex(x)))
 		x = x[:len(x)/2] // upper half is redundant for real signals
 	}
 

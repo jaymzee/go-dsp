@@ -27,17 +27,17 @@ Log2 returns the radix-2 logarithm of integer x using a very fast algorithm
 
 Map applies f to each real element of x and returns the results
 
-### func [MapC](/map.go#L22)
+### func [MapComplex](/map.go#L22)
 
-`func MapC(f func(complex128) complex128, x []complex128) []complex128`
+`func MapComplex(f func(complex128) complex128, x []complex128) []complex128`
 
-MapC applies f to each complex element of x and returns the results
+MapComplex applies f to each complex element of x and returns the results
 
-### func [MapCtof](/map.go#L31)
+### func [MapReal](/map.go#L31)
 
-`func MapCtof(f func(complex128) float64, x []complex128) []float64`
+`func MapReal(f func(complex128) float64, x []complex128) []float64`
 
-MapCtof applies f to each complex element of x and returns the results
+MapReal applies f to each complex element of x and returns the results
 
 ### func [Max](/math.go#L6)
 
