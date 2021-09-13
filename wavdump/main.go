@@ -21,19 +21,19 @@ func init() {
 		fmt.Fprintf(os.Stderr,
 			"  WAVDUMP=nogfx    disable graphics (Kitty terminal)\n")
 	}
-	flag.BoolVar(&cfg.eFlag, "e", false, "print samples as floating point")
-	flag.BoolVar(&cfg.fFlag, "f", false, "plot FFT (length must be a power of 2)")
-	flag.BoolVar(&cfg.lFlag, "l", false,
-		"print samples on one line (no pretty print)")
-	flag.StringVar(&cfg.nFlag, "n", "",
+	flag.BoolVar(&cfg.floats, "F", false, "print samples as IEEE floats")
+	flag.BoolVar(&cfg.pretty, "P", false, "pretty print samples")
+	flag.StringVar(&cfg.srange, "N", "",
 		"range of samples to print/plot\n"+
 			"examples:\n"+
-			"  100     first 100 samples\n"+
-			"  50:100  50th thru 100th sample\n"+
-			"  100:    from 100th sample to the end of the file")
-	flag.BoolVar(&cfg.pFlag, "p", false, "plot samples")
-	flag.BoolVar(&cfg.rFlag, "r", false, "plot RMS")
-	flag.Float64Var(&cfg.sFlag, "s", 0.0, "plot log RMS, floor in dB (-40 dB)")
+			"  -N 100     first 100 samples\n"+
+			"  -N 50:100  50th thru 100th sample\n"+
+			"  -N 100:    from 100th sample to the end of the file")
+	flag.BoolVar(&cfg.plotpcm, "p", false, "plot x")
+	flag.BoolVar(&cfg.plotrms, "r", false, "plot rms(x)")
+	flag.BoolVar(&cfg.plotfft, "f", false, "plot fft(x) (range must be 2^N)")
+	flag.Float64Var(&cfg.plotlog, "log", 0.0, "plot log(rms(x))\nexamples:\n"+
+		"  -log=-40   floor >= -40 dB")
 }
 
 func main() {
@@ -60,7 +60,7 @@ func dumpFile(filename string) {
 	}
 
 	// print summary
-	first, last := sampleRange(wf, cfg.nFlag)
+	first, last := sampleRange(wf, cfg.srange)
 	head := fmt.Sprintf("%s: %s [%d:%d]", filename, wf.Summary(), first, last)
 	if !term.Isatty() || len(head) < getTermWidth() {
 		fmt.Println(head)
@@ -69,7 +69,7 @@ func dumpFile(filename string) {
 	}
 
 	// print some samples
-	if (cfg.nFlag != "" && !cfg.plot) || cfg.eFlag || cfg.lFlag {
+	if (cfg.srange != "" && !cfg.plot) || cfg.floats || cfg.pretty {
 		err := printSamples(wf)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "\x1b[1;31mdata:\x1b[0m %s\n", err)

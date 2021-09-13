@@ -10,15 +10,14 @@ func printSamples(wf *wavio.File) error {
 		defaultFmt = "data: %#v\n"
 		prettyFmt  = "data: %T{\n"
 	)
-	first, last := sampleRange(wf, cfg.nFlag)
-	pretty := !cfg.lFlag
-	if wf.Format == wavio.PCM && !cfg.eFlag {
+	first, last := sampleRange(wf, cfg.srange)
+	if wf.Format == wavio.PCM && !cfg.floats {
 		// convert wav file samples to int16
 		x, err := wf.ToInt16(first, last)
 		if err != nil {
 			return err
 		}
-		if pretty {
+		if cfg.pretty {
 			fmt.Printf(prettyFmt, x)
 			for n, xn := range x {
 				fmt.Printf("%5d: %6d,\n", first+n, xn)
@@ -33,7 +32,7 @@ func printSamples(wf *wavio.File) error {
 			if err != nil {
 				return err
 			}
-			if pretty {
+			if cfg.pretty {
 				fmt.Printf(prettyFmt, x)
 				for n, xn := range x {
 					fmt.Printf("%5d: %20.12e,\n", first+n, xn)
@@ -48,7 +47,7 @@ func printSamples(wf *wavio.File) error {
 			if err != nil {
 				return err
 			}
-			if pretty {
+			if cfg.pretty {
 				fmt.Printf(prettyFmt, x)
 				for n, xn := range x {
 					fmt.Printf("%5d: %13.6e,\n", first+n, xn)

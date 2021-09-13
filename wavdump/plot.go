@@ -48,20 +48,20 @@ func plotWave(wf *wavio.File) error {
 		width, height = int(winsize.Cols)-16, int(winsize.Rows)-5
 	}
 
-	x, err := wf.ToFloat64(sampleRange(wf, cfg.nFlag))
+	x, err := wf.ToFloat64(sampleRange(wf, cfg.srange))
 	if err != nil {
 		return err
 	}
-	if cfg.fFlag {
+	if cfg.plotfft {
 		x = signal.MapReal(cmplx.Abs, fft.FFT(signal.Complex(x)))
 		x = x[:len(x)/2] // upper half is redundant for real signals
 	}
 
-	if cfg.sFlag < 0 {
-		plt = plot.Compose(logRms(cfg.sFlag), square, x, width, height)
+	if cfg.plotlog < 0 {
+		plt = plot.Compose(logRms(cfg.plotlog), square, x, width, height)
 		plt.LineColor = 0x0000ffff
 		plt.Dots = false
-	} else if cfg.rFlag {
+	} else if cfg.plotrms {
 		plt = plot.Compose(math.Sqrt, square, x, width, height)
 		plt.LineColor = 0x0000ffff
 		plt.Dots = false

@@ -11,22 +11,27 @@ var cfg Config
 
 // Config is the app configuration based on Flags and Environment variables
 type Config struct {
-	eFlag    bool
-	fFlag    bool
-	lFlag    bool
-	pFlag    bool
-	rFlag    bool
-	sFlag    float64
-	nFlag    string
+	// flags
+	srange  string
+	floats  bool
+	pretty  bool
+	plotpcm bool
+	plotrms bool
+	plotfft bool
+	plotlog float64
+
+	// environment
 	terminal string
 	termXres uint16
 	termYres uint16
-	plot     bool
+
+	// computed
+	plot bool
 }
 
 // ProcessFlags finishes initialization of the configuration struct Config
 func (c *Config) ProcessFlags() {
-	if c.pFlag || c.rFlag || c.sFlag < 0.0 || c.fFlag {
+	if c.plotpcm || c.plotrms || c.plotlog < 0.0 || c.plotfft {
 		c.plot = true
 	}
 
