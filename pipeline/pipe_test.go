@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"fmt"
+	"math"
 )
 
 func ExampleSquare() {
@@ -17,4 +18,18 @@ func ExampleSquare() {
 	// 1
 	// 4
 	// 9
+}
+
+func ExampleSinwave() {
+	c := Sinewave(math.Pi/2, 1.0)
+
+	fmt.Printf("%.3f\n", <-c)
+	fmt.Printf("%.3f\n", <-c)
+	fmt.Printf("%.3f\n", <-c)
+	fmt.Printf("%.3f\n", <-c)
+	// Output:
+	// 0.000
+	// 1.000
+	// 0.000
+	// -1.000
 }
