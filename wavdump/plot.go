@@ -7,6 +7,7 @@ import (
 	"github.com/jaymzee/go-dsp/wavio"
 	"github.com/jaymzee/img/plot"
 	"github.com/jaymzee/img/term"
+	"github.com/jaymzee/img/term/fb"
 	"github.com/jaymzee/img/term/iterm"
 	"github.com/jaymzee/img/term/kitty"
 	"math"
@@ -71,7 +72,10 @@ func plotWave(wf *wavio.File) error {
 		plt.Dots = true
 	}
 
-	if cfg.terminal == "kitty" || cfg.terminal == "iterm" {
+	if cfg.terminal == "kitty" ||
+		cfg.terminal == "iterm" ||
+		cfg.terminal == "console" {
+		fmt.Println("tty = ", term.TtyName(), "terminal = ", cfg.terminal)
 		err := PlotPNG(plt.RenderPNG(), plt.Ymin, plt.Ymax)
 		if err != nil {
 			return err
@@ -99,6 +103,11 @@ func PlotPNG(buf []byte, min, max float64) error {
 			return err
 		}
 		fmt.Printf("\033[A")
+	case "console":
+		err := fb.WriteImage("/dev/fb0", buf)
+		if err != nil {
+			return err
+		}
 	default:
 		return fmt.Errorf("%q does not support graphics", cfg.terminal)
 	}

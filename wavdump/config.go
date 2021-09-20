@@ -39,6 +39,10 @@ func (c *Config) ProcessFlags() {
 		c.terminal = "kitty"
 	}
 
+	if term.Isaconsole() {
+		c.terminal = "console"
+	}
+
 	env := strings.ToLower(os.Getenv("WAVDUMP"))
 	for _, expr := range strings.Fields(env) {
 		s := strings.Split(expr, "=")
