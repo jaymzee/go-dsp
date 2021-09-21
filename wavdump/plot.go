@@ -49,6 +49,11 @@ func plotWave(wf *wavio.File) error {
 		width, height = int(winsize.Cols)-16, int(winsize.Rows)-5
 	}
 
+	// this number was chosen as a maximum because it avoids a seg fault if using console (framebuffer)
+	if height > 254 {
+		height = 254
+	}
+
 	x, err := wf.ToFloat64(sampleRange(wf, cfg.srange))
 	if err != nil {
 		return err
