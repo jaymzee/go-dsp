@@ -41,7 +41,7 @@ func plotWave(wf *wavio.File) error {
 		winsize.Yres = cfg.termYres
 	}
 
-	if cfg.terminal == "kitty" || cfg.terminal == "iterm" {
+	if cfg.terminal == "kitty" || cfg.terminal == "iterm" || cfg.terminal == "console" {
 		charHeight := winsize.Yres / winsize.Rows
 		charWidth := winsize.Xres / winsize.Cols
 		width, height = int((winsize.Cols-13)*charWidth), int(charHeight*10)
@@ -75,7 +75,6 @@ func plotWave(wf *wavio.File) error {
 	if cfg.terminal == "kitty" ||
 		cfg.terminal == "iterm" ||
 		cfg.terminal == "console" {
-		fmt.Println("tty = ", term.TtyName(), "terminal = ", cfg.terminal)
 		err := PlotPNG(plt.RenderPNG(), plt.Ymin, plt.Ymax)
 		if err != nil {
 			return err
