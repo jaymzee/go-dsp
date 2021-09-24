@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/jaymzee/go-dsp/wavio"
 	"github.com/jaymzee/img/term"
@@ -9,40 +10,56 @@ import (
 	"strings"
 )
 
+// the global config
 var cfg Config
 
 // Config is the app configuration based on Flags and Environment variables
 type Config struct {
-	// flags
-	srange  string
-	floats  bool
-	pretty  bool
-	plotpcm bool
-	plotrms bool
-	plotfft bool
-	plotlog float64
+	// command line flags
+	PlotFFT     bool
+	PlotPCM     bool
+	PlotRMS     bool
+	PlotLogRMS  float64
+	PrettyPrint bool
+	PrintFloat  bool
+	RangeString string
 
-	// environment
-	termGfx  TermGraphics
-	termCols int
-	termRows int
-	termXres int
-	termYres int
+	// below values are computed in Init() method
 
-	// computed values (based on flags)
 	// true if a plot will be rendered
-	plot bool
+	Plot bool
 	// range of samples to print or plot [start:stop]
-	start int
-	stop  int
+	Range Range
+	// terminal configuration
+	Terminal TerminalConfig
+}
+
+// Range is the range of a slice [start:stop]
+type Range struct {
+	Start int
+	Stop  int
+}
+
+// NewRange returns a new range [start:stop]
+func NewRange(start, stop int) Range {
+	return Range{Start: start, Stop: stop}
+}
+
+// TermConfig is the terminal configuration
+type TerminalConfig struct {
+	Graphics TerminalGraphics
+	Rows     int
+	Cols     int
+	Xres     int
+	Yres     int
 }
 
 // TermGraphics is the type of terminal graphics rendering
-type TermGraphics int
+type TerminalGraphics int
 
 const (
 	// ASCIIArt render plots with ASCII art
-	ASCIIArt TermGraphics = iota
+	ASCIIArt TerminalGraphics = iota
 	// Kitty render plots using kitty terminal graphics protocol
 	Kitty
 	// ITerm2 render plots using iTerm2 graphics protocol (supports mintty)
@@ -51,37 +68,46 @@ const (
 	ConsoleFB
 )
 
-func (tg TermGraphics) String() string {
+func (tg TerminalGraphics) String() string {
 	return [...]string{"ASCIIArt", "Kitty", "ITerm2", "ConsoleFB"}[tg]
+}
+
+// ToJSON returns the configuration in pretty printed JSON
+func (c *Config) ToJSON() ([]byte, error) {
+	jsondata, err := json.MarshalIndent(c, "", "    ")
+	if err != nil {
+		return nil, err
+	}
+	return jsondata, nil
 }
 
 // Init probes the environment to finish initialization of the configuration c
 func (c *Config) Init(wf *wavio.File) error {
-	if c.plotpcm || c.plotrms || c.plotlog < 0.0 || c.plotfft {
-		c.plot = true
+	if c.PlotPCM || c.PlotRMS || c.PlotLogRMS < 0.0 || c.PlotFFT {
+		c.Plot = true
 	}
 
-	c.start, c.stop = parseSampleRange(wf, c.srange)
+	c.Range = parseSampleRange(wf, c.RangeString)
 
 	// detect kitty terminal emulator for terminal graphics
 	if strings.Contains(os.Getenv("TERM"), "kitty") && term.Isatty() {
-		c.termGfx = Kitty
+		c.Terminal.Graphics = Kitty
 	}
 
 	// detect linux console framebuffer for terminal graphics
 	if term.Isaconsole() {
-		c.termGfx = ConsoleFB
+		c.Terminal.Graphics = ConsoleFB
 	}
 
 	// terminal window size
 	ws := term.GetWinsize()
-	c.termCols = int(ws.Cols)
-	c.termRows = int(ws.Rows)
+	c.Terminal.Cols = int(ws.Cols)
+	c.Terminal.Rows = int(ws.Rows)
 	if ws.Xres <= 0 || ws.Yres <= 0 {
 		// no IO_CNTRL TIOCGWINSZ, so create sensible defaults
-		c.termXres, c.termYres = 1024, 768
+		c.Terminal.Xres, c.Terminal.Yres = 1024, 768
 	} else {
-		c.termXres, c.termYres = int(ws.Xres), int(ws.Yres)
+		c.Terminal.Xres, c.Terminal.Yres = int(ws.Xres), int(ws.Yres)
 	}
 
 	// allow overriding detected environment
@@ -93,13 +119,13 @@ func (c *Config) Init(wf *wavio.File) error {
 		case "term":
 			switch value {
 			case "asciiart", "ascii", "text":
-				c.termGfx = ASCIIArt
+				c.Terminal.Graphics = ASCIIArt
 			case "kitty":
-				c.termGfx = Kitty
+				c.Terminal.Graphics = Kitty
 			case "iterm2", "iterm":
-				c.termGfx = ITerm2
+				c.Terminal.Graphics = ITerm2
 			case "consolefb", "console":
-				c.termGfx = ConsoleFB
+				c.Terminal.Graphics = ConsoleFB
 			default:
 				return fmt.Errorf("bad value for terminal: %s", sides[1])
 			}
@@ -108,13 +134,13 @@ func (c *Config) Init(wf *wavio.File) error {
 			if err != nil {
 				return fmt.Errorf("bad value for xres: %s", sides[1])
 			}
-			c.termXres = int(xres)
+			c.Terminal.Xres = int(xres)
 		case "yres":
 			yres, err := strconv.ParseUint(value, 10, 16)
 			if err != nil {
 				return fmt.Errorf("bad value for yres: %s", sides[1])
 			}
-			c.termYres = int(yres)
+			c.Terminal.Yres = int(yres)
 		}
 	}
 
@@ -123,7 +149,7 @@ func (c *Config) Init(wf *wavio.File) error {
 
 // parse string to get slice start and end values
 // values are bounded by the actual number of samples available
-func parseSampleRange(wf *wavio.File, str string) (int, int) {
+func parseSampleRange(wf *wavio.File, str string) Range {
 	start := 0
 	end := 0
 	s := strings.Split(str, ":")
@@ -139,5 +165,5 @@ func parseSampleRange(wf *wavio.File, str string) (int, int) {
 		end = wf.Samples()
 	}
 	start = min(start, end)
-	return start, end
+	return NewRange(start, end)
 }

@@ -28,12 +28,12 @@ func plotWave(wf *wavio.File) error {
 	var plt *plot.Plot
 	var width, height int
 
-	if cfg.termGfx == ASCIIArt {
-		width, height = int(cfg.termCols)-16, int(cfg.termRows)-5
+	if cfg.Terminal.Graphics == ASCIIArt {
+		width, height = int(cfg.Terminal.Cols)-16, int(cfg.Terminal.Rows)-5
 	} else {
-		charHeight := cfg.termYres / cfg.termRows
-		charWidth := cfg.termXres / cfg.termCols
-		width, height = int((cfg.termCols-13)*charWidth), int(charHeight*10)
+		charH := cfg.Terminal.Yres / cfg.Terminal.Rows
+		charW := cfg.Terminal.Xres / cfg.Terminal.Cols
+		width, height = int((cfg.Terminal.Cols-13)*charW), int(charH*10)
 	}
 
 	// this number was chosen as a maximum because it avoids a seg fault if using console (framebuffer)
@@ -41,20 +41,20 @@ func plotWave(wf *wavio.File) error {
 		height = 254
 	}
 
-	x, err := wf.ToFloat64(cfg.start, cfg.stop)
+	x, err := wf.ToFloat64(cfg.Range.Start, cfg.Range.Stop)
 	if err != nil {
 		return err
 	}
-	if cfg.plotfft {
+	if cfg.PlotFFT {
 		x = signal.MapReal(cmplx.Abs, fft.FFT(signal.Complex(x)))
 		x = x[:len(x)/2] // upper half is redundant for real signals
 	}
 
-	if cfg.plotlog < 0 {
-		plt = plot.Compose(logRms(cfg.plotlog), square, x, width, height)
+	if cfg.PlotLogRMS < 0 {
+		plt = plot.Compose(logRms(cfg.PlotLogRMS), square, x, width, height)
 		plt.LineColor = 0x0000ffff
 		plt.Dots = false
-	} else if cfg.plotrms {
+	} else if cfg.PlotRMS {
 		plt = plot.Compose(math.Sqrt, square, x, width, height)
 		plt.LineColor = 0x0000ffff
 		plt.Dots = false
@@ -64,7 +64,7 @@ func plotWave(wf *wavio.File) error {
 		plt.Dots = true
 	}
 
-	if cfg.termGfx == ASCIIArt {
+	if cfg.Terminal.Graphics == ASCIIArt {
 		fmt.Print(plt.RenderASCII())
 	} else {
 		err := PlotPNG(plt.RenderPNG(), plt.Ymin, plt.Ymax)
@@ -80,7 +80,7 @@ func plotWave(wf *wavio.File) error {
 // terminal graphics protocol.
 func PlotPNG(buf []byte, min, max float64) error {
 	fmt.Printf("%11.3e", max)
-	switch cfg.termGfx {
+	switch cfg.Terminal.Graphics {
 	case Kitty:
 		err := kitty.WriteImage(os.Stdout, "a=T,f=100", buf)
 		if err != nil {
@@ -98,7 +98,8 @@ func PlotPNG(buf []byte, min, max float64) error {
 			return err
 		}
 	default:
-		return fmt.Errorf("PlotPNG: no implementation for %v", cfg.termGfx)
+		return fmt.Errorf("PlotPNG: no implementation for %v",
+			cfg.Terminal.Graphics)
 	}
 	fmt.Printf("\n\033[A%11.3e\n", min)
 	return nil
