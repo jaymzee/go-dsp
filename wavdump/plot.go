@@ -6,7 +6,6 @@ import (
 	"github.com/jaymzee/go-dsp/signal/fft"
 	"github.com/jaymzee/go-dsp/wavio"
 	"github.com/jaymzee/img/plot"
-	"github.com/jaymzee/img/term"
 	"github.com/jaymzee/img/term/fb"
 	"github.com/jaymzee/img/term/iterm"
 	"github.com/jaymzee/img/term/kitty"
@@ -29,24 +28,12 @@ func plotWave(wf *wavio.File) error {
 	var plt *plot.Plot
 	var width, height int
 
-	winsize := term.GetWinsize()
-	if winsize.Xres <= 0 {
-		// no IO_CNTRL TIOCGWINSZ, so create sensible defaults
-		winsize.Xres = 1024
-		winsize.Yres = 768
-	}
-	if cfg.termXres > 0 {
-		// allow overriding in environment
-		winsize.Xres = cfg.termXres
-		winsize.Yres = cfg.termYres
-	}
-
-	if cfg.terminal == "kitty" || cfg.terminal == "iterm" || cfg.terminal == "console" {
-		charHeight := winsize.Yres / winsize.Rows
-		charWidth := winsize.Xres / winsize.Cols
-		width, height = int((winsize.Cols-13)*charWidth), int(charHeight*10)
+	if cfg.termGfx == ASCIIArt {
+		width, height = int(cfg.termCols)-16, int(cfg.termRows)-5
 	} else {
-		width, height = int(winsize.Cols)-16, int(winsize.Rows)-5
+		charHeight := cfg.termYres / cfg.termRows
+		charWidth := cfg.termXres / cfg.termCols
+		width, height = int((cfg.termCols-13)*charWidth), int(charHeight*10)
 	}
 
 	// this number was chosen as a maximum because it avoids a seg fault if using console (framebuffer)
@@ -54,7 +41,7 @@ func plotWave(wf *wavio.File) error {
 		height = 254
 	}
 
-	x, err := wf.ToFloat64(sampleRange(wf, cfg.srange))
+	x, err := wf.ToFloat64(cfg.start, cfg.stop)
 	if err != nil {
 		return err
 	}
@@ -77,15 +64,13 @@ func plotWave(wf *wavio.File) error {
 		plt.Dots = true
 	}
 
-	if cfg.terminal == "kitty" ||
-		cfg.terminal == "iterm" ||
-		cfg.terminal == "console" {
+	if cfg.termGfx == ASCIIArt {
+		fmt.Print(plt.RenderASCII())
+	} else {
 		err := PlotPNG(plt.RenderPNG(), plt.Ymin, plt.Ymax)
 		if err != nil {
 			return err
 		}
-	} else {
-		fmt.Print(plt.RenderASCII())
 	}
 
 	return nil
@@ -95,25 +80,25 @@ func plotWave(wf *wavio.File) error {
 // terminal graphics protocol.
 func PlotPNG(buf []byte, min, max float64) error {
 	fmt.Printf("%11.3e", max)
-	switch cfg.terminal {
-	case "kitty":
+	switch cfg.termGfx {
+	case Kitty:
 		err := kitty.WriteImage(os.Stdout, "a=T,f=100", buf)
 		if err != nil {
 			return err
 		}
-	case "iterm":
+	case ITerm2:
 		err := iterm.WriteImage(os.Stdout, "inline=1", buf)
 		if err != nil {
 			return err
 		}
 		fmt.Printf("\033[A")
-	case "console":
+	case ConsoleFB:
 		err := fb.WriteImage("/dev/fb0", buf)
 		if err != nil {
 			return err
 		}
 	default:
-		return fmt.Errorf("%q does not support graphics", cfg.terminal)
+		return fmt.Errorf("PlotPNG: no implementation for %v", cfg.termGfx)
 	}
 	fmt.Printf("\n\033[A%11.3e\n", min)
 	return nil

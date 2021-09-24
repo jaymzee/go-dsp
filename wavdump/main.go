@@ -6,8 +6,6 @@ import (
 	"github.com/jaymzee/go-dsp/wavio"
 	"github.com/jaymzee/img/term"
 	"os"
-	"strconv"
-	"strings"
 )
 
 func init() {
@@ -19,7 +17,7 @@ func init() {
 		fmt.Fprintf(os.Stderr,
 			"  WAVDUMP=term=iterm xres=800 yres=200    terminal graphics (iTerm2 or mintty)\n")
 		fmt.Fprintf(os.Stderr,
-			"  WAVDUMP=nogfx    disable graphics (Kitty terminal)\n")
+			"  WAVDUMP=term=text    render plots using ascii art\n")
 	}
 	flag.BoolVar(&cfg.floats, "F", false, "print samples as IEEE floats")
 	flag.BoolVar(&cfg.pretty, "P", false, "pretty print samples")
@@ -39,7 +37,6 @@ func init() {
 func main() {
 	// parse program arguments
 	flag.Parse()
-	cfg.ProcessFlags()
 	args := flag.Args()
 	if len(args) < 1 {
 		flag.Usage()
@@ -59,10 +56,17 @@ func dumpFile(filename string) {
 		os.Exit(1)
 	}
 
+	// init configuration (based on flags and the wavfile)
+	err = cfg.Init(wf)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
 	// print summary
-	first, last := sampleRange(wf, cfg.srange)
-	head := fmt.Sprintf("%s: %s [%d:%d]", filename, wf.Summary(), first, last)
-	if !term.Isatty() || len(head) < getTermWidth() {
+	head := fmt.Sprintf("%s: %s [%d:%d]",
+		filename, wf.Summary(), cfg.start, cfg.stop)
+	if !term.Isatty() || len(head) < cfg.termCols {
 		fmt.Println(head)
 	} else {
 		fmt.Println(wf.Summary())
@@ -85,37 +89,4 @@ func dumpFile(filename string) {
 			os.Exit(1)
 		}
 	}
-}
-
-// parse string to get slice start and end values
-// values are bounded by the actual number of samples available
-func sampleRange(wf *wavio.File, str string) (int, int) {
-	start := 0
-	end := 0
-	s := strings.Split(str, ":")
-	if len(s) > 1 {
-		start, _ = strconv.Atoi(s[0])
-	}
-	if len(s) > 0 {
-		end, _ = strconv.Atoi(s[len(s)-1])
-	}
-	if end > 0 {
-		end = min(end, wf.Samples())
-	} else {
-		end = wf.Samples()
-	}
-	start = min(start, end)
-	return start, end
-}
-
-func min(a int, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func getTermWidth() int {
-	ws := term.GetWinsize()
-	return int(ws.Cols)
 }

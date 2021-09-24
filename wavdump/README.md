@@ -20,7 +20,7 @@ Display information from wav file
       -r    plot rms(x)
     environment variables:
       WAVDUMP=term=iterm xres=800 yres=200    terminal graphics (iTerm2/mintty)
-      WAVDUMP=nogfx    disable graphics (Kitty terminal)
+      WAVDUMP=term=text    render plots using ASCII art
 
 ```
 $ wavdump tone.wav
