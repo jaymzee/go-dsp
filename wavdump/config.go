@@ -85,34 +85,36 @@ func (c *Config) Init(wf *wavio.File) error {
 	}
 
 	// allow overriding detected environment
-	env := strings.ToLower(os.Getenv("WAVDUMP"))
+	env := os.Getenv("WAVDUMP")
 	for _, expr := range strings.Fields(env) {
-		s := strings.Split(expr, "=")
-		switch s[0] {
+		sides := strings.Split(expr, "=")
+		key, value := strings.ToLower(sides[0]), strings.ToLower(sides[1])
+		switch key {
 		case "term":
-			switch s[1] {
-			case "ITerm2":
-			case "iTerm2":
-			case "iterm":
-				c.termGfx = ITerm2
-			case "ASCII":
-			case "ASCIIArt":
-			case "ascii":
-			case "text":
+			switch value {
+			case "asciiart", "ascii", "text":
 				c.termGfx = ASCIIArt
+			case "kitty":
+				c.termGfx = Kitty
+			case "iterm2", "iterm":
+				c.termGfx = ITerm2
+			case "consolefb", "console":
+				c.termGfx = ConsoleFB
+			default:
+				return fmt.Errorf("bad value for terminal: %s", sides[1])
 			}
 		case "xres":
-			val, err := strconv.ParseUint(s[1], 10, 16)
+			xres, err := strconv.ParseUint(value, 10, 16)
 			if err != nil {
-				return fmt.Errorf("bad value for xres: %s", s[1])
+				return fmt.Errorf("bad value for xres: %s", sides[1])
 			}
-			c.termXres = int(val)
+			c.termXres = int(xres)
 		case "yres":
-			val, err := strconv.ParseUint(s[1], 10, 16)
+			yres, err := strconv.ParseUint(value, 10, 16)
 			if err != nil {
-				return fmt.Errorf("bad value for yres: %s", s[1])
+				return fmt.Errorf("bad value for yres: %s", sides[1])
 			}
-			c.termYres = int(val)
+			c.termYres = int(yres)
 		}
 	}
 

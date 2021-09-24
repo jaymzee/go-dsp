@@ -8,6 +8,8 @@ import (
 	"os"
 )
 
+var dumpconfig *bool
+
 func init() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [options] wavfile\n", os.Args[0])
@@ -32,6 +34,7 @@ func init() {
 	flag.BoolVar(&cfg.plotfft, "f", false, "plot fft(x) (range must be 2^N)")
 	flag.Float64Var(&cfg.plotlog, "log", 0.0, "plot log(rms(x))\nexamples:\n"+
 		"  -log=-40   floor >= -40 dB")
+	dumpconfig = flag.Bool("config", false, "show configuration")
 }
 
 func main() {
@@ -61,6 +64,12 @@ func dumpFile(filename string) {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
+	}
+
+	// for debugging configuration
+	if *dumpconfig {
+		fmt.Printf("%s: %#v\n", filename, cfg)
+		os.Exit(0)
 	}
 
 	// print summary
