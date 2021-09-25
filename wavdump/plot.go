@@ -85,6 +85,7 @@ func PlotPNG(buf []byte, min, max float64) error {
 		if err != nil {
 			return err
 		}
+		fmt.Println()
 	case ITerm2:
 		err := iterm.WriteImage(os.Stdout, "inline=1", buf)
 		if err != nil {

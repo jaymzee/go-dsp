@@ -141,6 +141,18 @@ func (c *Config) Init(wf *wavio.File) error {
 				return fmt.Errorf("bad value for yres: %s", sides[1])
 			}
 			c.Terminal.Yres = int(yres)
+		case "cols":
+			cols, err := strconv.ParseUint(value, 10, 16)
+			if err != nil {
+				return fmt.Errorf("bad value for cols: %s", sides[1])
+			}
+			c.Terminal.Cols = int(cols)
+		case "rows":
+			rows, err := strconv.ParseUint(value, 10, 16)
+			if err != nil {
+				return fmt.Errorf("bad value for rows: %s", sides[1])
+			}
+			c.Terminal.Rows = int(rows)
 		}
 	}
 
