@@ -52,15 +52,15 @@ func plotWave(wf *wavio.File) error {
 
 	if cfg.PlotLogRMS < 0 {
 		plt = plot.Compose(logRms(cfg.PlotLogRMS), square, x, width, height)
-		plt.LineColor = 0x0000ffff
+		plt.LineColor = 4 // blue
 		plt.Dots = false
 	} else if cfg.PlotRMS {
 		plt = plot.Compose(math.Sqrt, square, x, width, height)
-		plt.LineColor = 0x0000ffff
+		plt.LineColor = 4 // blue
 		plt.Dots = false
 	} else {
 		plt = plot.Compose(plot.ID, plot.ID, x, width, height)
-		plt.LineColor = 0x00ff00ff
+		plt.LineColor = 2 // green
 		plt.Dots = true
 	}
 
@@ -79,7 +79,6 @@ func plotWave(wf *wavio.File) error {
 // PlotPNG writes the PNG image to the terminal using the appropriate
 // terminal graphics protocol.
 func PlotPNG(buf []byte, min, max float64) error {
-	fmt.Printf("%11.3e", max)
 	switch cfg.Terminal.Graphics {
 	case Kitty:
 		err := kitty.WriteImage(os.Stdout, "a=T,f=100", buf)
@@ -101,6 +100,5 @@ func PlotPNG(buf []byte, min, max float64) error {
 		return fmt.Errorf("PlotPNG: no implementation for %v",
 			cfg.Terminal.Graphics)
 	}
-	fmt.Printf("\n\033[A%11.3e\n", min)
 	return nil
 }

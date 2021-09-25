@@ -45,7 +45,7 @@ func NewRange(start, stop int) Range {
 	return Range{Start: start, Stop: stop}
 }
 
-// TermConfig is the terminal configuration
+// TerminalConfig is the terminal configuration
 type TerminalConfig struct {
 	Graphics TerminalGraphics
 	Rows     int
@@ -54,7 +54,7 @@ type TerminalConfig struct {
 	Yres     int
 }
 
-// TermGraphics is the type of terminal graphics rendering
+// TerminalGraphics is the type of terminal graphics rendering
 type TerminalGraphics int
 
 const (
