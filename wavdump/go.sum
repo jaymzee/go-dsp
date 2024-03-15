@@ -1,0 +1,6 @@
+github.com/jaymzee/go-dsp v0.0.0-20210925161012-3015268b543b h1:JfRVYo/iZHGxpfgOkRmsjNqV7o5RSB1X58mCbtKZs3g=
+github.com/jaymzee/go-dsp v0.0.0-20210925161012-3015268b543b/go.mod h1:JWuJyOeY1txqZ6q10hwMJ5zm/5l51TMaQ/JL50mtuOU=
+github.com/jaymzee/img v0.0.0-20210925161548-d93a4923db9c h1:8mJTkFp0Lkd84IzHo/8qhdIQsH0P1yE1FSH94rYRm84=
+github.com/jaymzee/img v0.0.0-20210925161548-d93a4923db9c/go.mod h1:lfOh0SpMHlhW4ehTPTtCWWHuD+L1s65VQ5xkva/rzy4=
+golang.org/x/sys v0.18.0 h1:DBdB3niSjOA/O0blCZBqDefyWNYveAYMNF1Wum0DYQ4=
+golang.org/x/sys v0.18.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=

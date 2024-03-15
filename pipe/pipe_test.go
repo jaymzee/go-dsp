@@ -21,7 +21,7 @@ func ExampleSquare() {
 }
 
 func ExampleSinwave() {
-	c := Sinewave(math.Pi/2, 1.0)
+	c := Sin(math.Pi/2, 1.0)
 
 	fmt.Printf("%.3f\n", <-c)
 	fmt.Printf("%.3f\n", <-c)

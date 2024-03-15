@@ -9,7 +9,7 @@ import (
 func main() {
 	fs := uint32(44100)
 	ω := 2.0 * math.Pi * 1000.0 / float64(fs)
-	ch := pipe.Sinewave(ω, 0.9999)
+	ch := pipe.Sin(ω, 0.9999)
 	x := make([]float64, fs)
 	for n := 0; n < len(x); n++ {
 		x[n] = <-ch
